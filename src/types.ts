@@ -1,48 +1,32 @@
-export type VisitorStatus = 'expected' | 'checked_in' | 'checked_out' | 'overstay';
-
-export type VisitPurpose = 
+export type CustomerPurpose = 
+  | 'Product Inquiry'
+  | 'Sales & Purchase'
   | 'Client Meeting'
-  | 'Interview'
-  | 'Vendor & Contractor'
-  | 'Consulting'
-  | 'Board & Executive'
-  | 'Personal Visit';
+  | 'Service & Support'
+  | 'Consultation'
+  | 'General Inquiry';
 
-export interface HostEmployee {
+export interface Customer {
   id: string;
-  name: string;
-  department: string;
-  email: string;
-  location: string;
-}
-
-export interface Visitor {
-  id: string;
-  badgeNumber: string;
   fullName: string;
-  email: string;
   phone: string;
+  email: string;
   company: string;
-  hostName: string;
-  hostDepartment: string;
-  hostEmail: string;
-  purpose: VisitPurpose;
-  location: string;
-  expectedDate: string; // YYYY-MM-DD
-  expectedTime: string; // HH:mm
-  checkInTime?: string; // ISO or formatted
-  checkOutTime?: string;
-  status: VisitorStatus;
-  ndaSigned: boolean;
+  city?: string;
+  purpose: string;
   notes?: string;
-  registeredAt: string;
+  registeredAt: string; // formatted date & time
+  registeredDate: string; // YYYY-MM-DD
 }
 
-export interface DashboardMetrics {
-  totalToday: number;
-  currentlyCheckedIn: number;
-  expectedRemaining: number;
-  completedVisits: number;
-  averageDurationHours: number;
+export interface CustomerMetrics {
+  totalCustomers: number;
+  todayCount: number;
+  thisWeekCount: number;
+  totalCompanies: number;
 }
 
+// Backward-compatibility aliases
+export type Visitor = Customer;
+export type VisitorStatus = 'registered';
+export type VisitPurpose = CustomerPurpose;

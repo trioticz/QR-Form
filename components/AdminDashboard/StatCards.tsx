@@ -25,10 +25,10 @@ export const StatCards: React.FC<StatCardsProps> = ({ visitors }) => {
     return !isNaN(d.getTime()) && d >= sevenDaysAgo;
   }).length;
 
-  const uniqueCompanies = new Set(
+  const uniqueOrganizations = new Set(
     visitors
-      .map((v) => v.company?.trim())
-      .filter((c) => c && c.toLowerCase() !== 'individual' && c.toLowerCase() !== 'independent guest')
+      .map((v) => (v.organizationName || v.company || '').trim())
+      .filter((c) => Boolean(c) && c.toLowerCase() !== 'individual' && c.toLowerCase() !== 'independent guest')
   ).size;
 
   return (
@@ -105,13 +105,13 @@ export const StatCards: React.FC<StatCardsProps> = ({ visitors }) => {
         </div>
         <div className="flex items-baseline gap-2">
           <span className="text-2xl font-bold tracking-tight text-slate-900">
-            {uniqueCompanies}
+            {uniqueOrganizations}
           </span>
-          <span className="text-xs text-slate-500">unique companies</span>
+          <span className="text-xs text-slate-500">organisations</span>
         </div>
         <div className="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
           <Building2 className="w-3.5 h-3.5 text-slate-400" />
-          <span>{uniqueCompanies > 0 ? `${uniqueCompanies} business entities` : 'Direct consumer entries'}</span>
+          <span>{uniqueOrganizations > 0 ? `${uniqueOrganizations} organisations recorded` : 'Direct entries'}</span>
         </div>
       </div>
     </div>

@@ -53,26 +53,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
     const headers = [
       'Customer ID',
-      'Full Name',
-      'Phone Number',
-      'Email Address',
-      'Company / Business',
-      'City / Location',
-      'Inquiry Category',
+      'Name',
+      'Phone number',
+      'Email',
+      'Type of Business',
+      'Organisation name',
       'Registration Date & Time',
-      'Notes / Requirement',
     ];
 
     const rows = visitors.map((v) => [
       v.id,
-      `"${(v.fullName || '').replace(/"/g, '""')}"`,
+      `"${(v.name || v.fullName || '').replace(/"/g, '""')}"`,
       `"${(v.phone || '').replace(/"/g, '""')}"`,
       `"${(v.email || '').replace(/"/g, '""')}"`,
-      `"${(v.company || '').replace(/"/g, '""')}"`,
-      `"${(v.city || '').replace(/"/g, '""')}"`,
-      `"${(v.purpose || '').replace(/"/g, '""')}"`,
+      `"${(v.businessType || v.purpose || '').replace(/"/g, '""')}"`,
+      `"${(v.organizationName || v.company || '').replace(/"/g, '""')}"`,
       `"${(v.registeredAt || '').replace(/"/g, '""')}"`,
-      `"${(v.notes || '').replace(/"/g, '""')}"`,
     ]);
 
     const csvContent =

@@ -9,7 +9,19 @@ export function getStoredCustomers(): Customer[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        return parsed.map((item: any) => ({
+          id: item.id || `CUST-${Math.floor(1000 + Math.random() * 9000)}`,
+          name: item.name || item.fullName || 'Unnamed Customer',
+          phone: item.phone || '',
+          email: item.email || '',
+          businessType: item.businessType || item.purpose || 'General',
+          organizationName: item.organizationName || (item.company && item.company !== 'Independent Guest' && item.company !== 'Individual' ? item.company : ''),
+          registeredAt: item.registeredAt || new Date().toISOString().slice(0, 16).replace('T', ' '),
+          registeredDate: item.registeredDate || (item.registeredAt ? item.registeredAt.slice(0, 10) : new Date().toISOString().slice(0, 10)),
+          fullName: item.name || item.fullName,
+          company: item.organizationName || item.company,
+          purpose: item.businessType || item.purpose,
+        }));
       }
     }
 
@@ -23,15 +35,16 @@ export function getStoredCustomers(): Customer[] {
           const registeredDate = item.expectedDate || (registeredAt ? registeredAt.slice(0, 10) : new Date().toISOString().slice(0, 10));
           return {
             id: item.id || `CUST-${1000 + idx}`,
-            fullName: item.fullName || 'Unnamed Customer',
+            name: item.fullName || item.name || 'Customer',
             phone: item.phone || '',
             email: item.email || '',
-            company: item.company === 'Independent Guest' ? 'Individual' : (item.company || 'Individual'),
-            city: item.location || '',
-            purpose: item.purpose || 'General Inquiry',
-            notes: item.notes || (item.hostName ? `Contact: ${item.hostName}` : undefined),
+            businessType: item.purpose || 'General',
+            organizationName: item.company && item.company !== 'Independent Guest' && item.company !== 'Individual' ? item.company : '',
             registeredAt,
             registeredDate,
+            fullName: item.fullName,
+            company: item.company,
+            purpose: item.purpose,
           };
         });
         localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));

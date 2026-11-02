@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, UserPlus, Plus } from 'lucide-react';
-import { Customer, CustomerPurpose } from '../../types';
+import { Customer } from '../../types';
 
 interface PreRegisterModalProps {
   isOpen: boolean;
@@ -13,19 +13,17 @@ export const PreRegisterModal: React.FC<PreRegisterModalProps> = ({
   onClose,
   onSave,
 }) => {
-  const [fullName, setFullName] = useState('');
+  const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [company, setCompany] = useState('');
-  const [city, setCity] = useState('');
-  const [purpose, setPurpose] = useState<CustomerPurpose>('Product Inquiry');
-  const [notes, setNotes] = useState('');
+  const [businessType, setBusinessType] = useState('');
+  const [organizationName, setOrganizationName] = useState('');
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName.trim() || !phone.trim()) return;
+    if (!name.trim() || !phone.trim() || !email.trim() || !businessType.trim()) return;
 
     const now = new Date();
     const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -34,32 +32,32 @@ export const PreRegisterModal: React.FC<PreRegisterModalProps> = ({
 
     const newCustomer: Customer = {
       id: randomId,
-      fullName: fullName.trim(),
+      name: name.trim(),
       phone: phone.trim(),
-      email: email.trim().toLowerCase() || '',
-      company: company.trim() || 'Individual',
-      city: city.trim() || undefined,
-      purpose,
-      notes: notes.trim() || undefined,
+      email: email.trim().toLowerCase(),
+      businessType: businessType.trim(),
+      organizationName: organizationName.trim() || undefined,
       registeredAt: `${dateFormatted} ${timeFormatted}`,
       registeredDate: dateFormatted,
+      fullName: name.trim(),
+      company: organizationName.trim() || '',
+      purpose: businessType.trim(),
     };
 
     onSave(newCustomer);
     onClose();
-    // Reset form
-    setFullName('');
+    // Reset
+    setName('');
     setPhone('');
     setEmail('');
-    setCompany('');
-    setCity('');
-    setNotes('');
+    setBusinessType('');
+    setOrganizationName('');
   };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-2xs flex items-center justify-center p-4">
       <div 
-        className="bg-white rounded-xl max-w-lg w-full border border-slate-200 shadow-xl overflow-hidden animate-fadeIn"
+        className="bg-white rounded-xl max-w-md w-full border border-slate-200 shadow-xl overflow-hidden animate-fadeIn"
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-customer-modal-title"
@@ -71,7 +69,7 @@ export const PreRegisterModal: React.FC<PreRegisterModalProps> = ({
               <h3 id="add-customer-modal-title" className="text-sm font-bold text-white">
                 Add Customer Entry
               </h3>
-              <p className="text-[11px] text-slate-400">Manually record customer contact & requirement</p>
+              <p className="text-[11px] text-slate-400">Record customer details</p>
             </div>
           </div>
           <button
@@ -83,108 +81,82 @@ export const PreRegisterModal: React.FC<PreRegisterModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-3.5">
+          {/* 1. Name */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-              Customer Full Name <span className="text-red-500">*</span>
+              Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               required
-              placeholder="e.g. Anand Sharma"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Enter customer name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                Mobile Number <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="tel"
-                required
-                placeholder="e.g. 98765 43210"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                placeholder="customer@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                Company / Business
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Apex Corp or Individual"
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                City / Location
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Chennai, Bangalore"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
-            </div>
-          </div>
-
+          {/* 2. Phone number */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-              Inquiry / Requirement Category
+              Phone number <span className="text-red-500">*</span>
             </label>
-            <select
-              value={purpose}
-              onChange={(e) => setPurpose(e.target.value as CustomerPurpose)}
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-            >
-              <option value="Product Inquiry">Product Inquiry</option>
-              <option value="Sales & Purchase">Sales & Purchase</option>
-              <option value="Client Meeting">Client Meeting</option>
-              <option value="Service & Support">Service & Support</option>
-              <option value="Consultation">Consultation</option>
-              <option value="General Inquiry">General Inquiry</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-              Requirement Notes / Message
-            </label>
-            <textarea
-              rows={3}
-              placeholder="Enter customer specific requirements or notes..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+            <input
+              type="tel"
+              required
+              placeholder="Enter phone number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
           </div>
 
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
+          {/* 3. Email */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+              Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              required
+              placeholder="customer@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
+
+          {/* 4. Type of Business */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+              Type of Business <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Retail, IT, Manufacturing, Services"
+              value={businessType}
+              onChange={(e) => setBusinessType(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
+
+          {/* 5. Organisation name [optional] */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+              Organisation name <span className="text-slate-400 font-normal lowercase">[optional]</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Organisation name (optional)"
+              value={organizationName}
+              onChange={(e) => setOrganizationName(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={onClose}

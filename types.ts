@@ -1,32 +1,30 @@
-export type CustomerPurpose = 
-  | 'Product Inquiry'
-  | 'Sales & Purchase'
-  | 'Client Meeting'
-  | 'Service & Support'
-  | 'Consultation'
-  | 'General Inquiry';
-
 export interface Customer {
   id: string;
-  fullName: string;
+  name: string;
   phone: string;
   email: string;
-  company: string;
-  city?: string;
-  purpose: string;
-  notes?: string;
-  registeredAt: string; // formatted date & time
+  businessType: string;
+  organizationName?: string;
+  registeredAt: string; // YYYY-MM-DD HH:mm
   registeredDate: string; // YYYY-MM-DD
+
+  // Backward compatibility aliases
+  fullName?: string;
+  company?: string;
+  purpose?: string;
+  city?: string;
+  notes?: string;
 }
 
 export interface CustomerMetrics {
   totalCustomers: number;
   todayCount: number;
   thisWeekCount: number;
-  totalCompanies: number;
+  totalOrganizations: number;
 }
 
-// Backward-compatibility aliases
+// Backward compatibility aliases
 export type Visitor = Customer;
 export type VisitorStatus = 'registered';
-export type VisitPurpose = CustomerPurpose;
+export type VisitPurpose = string;
+export type CustomerPurpose = string;

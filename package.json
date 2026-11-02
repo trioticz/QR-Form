@@ -1,0 +1,19 @@
+{
+  "name": "interactive-hero-portfolio",
+  "version": "1.0.0",
+  "description": "Interactive Portfolio with Scroll-Triggered Parallax Layers, 3D Geometric Mouse Physics, Floating Nav, and Glassmorphism",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
+  }
+}
+

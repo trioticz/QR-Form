@@ -1,84 +1,99 @@
-import { Visitor, VisitorStatus } from '../types';
+import { Customer } from '../types';
 
-const STORAGE_KEY = 'aurapass_visitors_manifest_v2';
+const STORAGE_KEY = 'customer_records_v1';
+const LEGACY_STORAGE_KEY = 'aurapass_visitors_manifest_v2';
 
-export function getStoredVisitors(): Visitor[] {
+export function getStoredCustomers(): Customer[] {
   try {
-    // Clear any previous mock data session
-    if (localStorage.getItem('aurapass_visitors_v1')) {
-      localStorage.removeItem('aurapass_visitors_v1');
-    }
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return [];
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
     }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+
+    // Check for legacy records to migrate seamlessly
+    const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (legacyRaw) {
+      const legacyList = JSON.parse(legacyRaw);
+      if (Array.isArray(legacyList) && legacyList.length > 0) {
+        const migrated: Customer[] = legacyList.map((item: any, idx: number) => {
+          const registeredAt = item.registeredAt || item.checkInTime || new Date().toISOString().slice(0, 16).replace('T', ' ');
+          const registeredDate = item.expectedDate || (registeredAt ? registeredAt.slice(0, 10) : new Date().toISOString().slice(0, 10));
+          return {
+            id: item.id || `CUST-${1000 + idx}`,
+            fullName: item.fullName || 'Unnamed Customer',
+            phone: item.phone || '',
+            email: item.email || '',
+            company: item.company === 'Independent Guest' ? 'Individual' : (item.company || 'Individual'),
+            city: item.location || '',
+            purpose: item.purpose || 'General Inquiry',
+            notes: item.notes || (item.hostName ? `Contact: ${item.hostName}` : undefined),
+            registeredAt,
+            registeredDate,
+          };
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+        return migrated;
+      }
+    }
+
+    return [];
   } catch (e) {
-    console.error('Failed to parse visitors from localStorage', e);
+    console.error('Failed to read customers from storage', e);
     return [];
   }
 }
 
-export function saveVisitor(newVisitor: Visitor): Visitor[] {
-  const current = getStoredVisitors();
-  const updated = [newVisitor, ...current];
+export function saveCustomer(newCustomer: Customer): Customer[] {
+  const current = getStoredCustomers();
+  const updated = [newCustomer, ...current];
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch (e) {
-    console.error('Failed to save visitor', e);
+    console.error('Failed to save customer', e);
   }
   return updated;
 }
 
-export function updateVisitorStatus(
-  id: string,
-  newStatus: VisitorStatus
-): Visitor[] {
-  const current = getStoredVisitors();
-  const now = new Date();
-  const timeFormatted = now.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-  const updated = current.map((v) => {
-    if (v.id !== id) return v;
-
-    if (newStatus === 'checked_in') {
-      return {
-        ...v,
-        status: newStatus,
-        checkInTime: timeFormatted,
-      };
-    } else if (newStatus === 'checked_out') {
-      return {
-        ...v,
-        status: newStatus,
-        checkOutTime: timeFormatted,
-      };
-    } else {
-      return {
-        ...v,
-        status: newStatus,
-      };
-    }
-  });
-
+export function deleteCustomer(id: string): Customer[] {
+  const current = getStoredCustomers();
+  const updated = current.filter((c) => c.id !== id);
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch (e) {
-    console.error('Failed to update visitor status', e);
+    console.error('Failed to delete customer', e);
   }
   return updated;
 }
 
-export function clearAllVisitors(): Visitor[] {
+export function updateCustomer(id: string, partial: Partial<Customer>): Customer[] {
+  const current = getStoredCustomers();
+  const updated = current.map((c) => (c.id === id ? { ...c, ...partial } : c));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  } catch (e) {
+    console.error('Failed to update customer', e);
+  }
+  return updated;
+}
+
+export function clearAllCustomers(): Customer[] {
   try {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
     localStorage.removeItem('aurapass_visitors_v1');
   } catch (e) {
-    console.error('Failed to clear visitors', e);
+    console.error('Failed to clear customer storage', e);
   }
   return [];
+}
+
+// Backward-compatibility aliases
+export const getStoredVisitors = getStoredCustomers;
+export const saveVisitor = saveCustomer;
+export const clearAllVisitors = clearAllCustomers;
+export function updateVisitorStatus(_id: string, _status: any): Customer[] {
+  return getStoredCustomers();
 }

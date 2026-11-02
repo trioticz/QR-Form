@@ -1,35 +1,40 @@
 import React, { useState } from 'react';
+import { Customer } from '../../types';
 import { 
-  Visitor, 
-  VisitorStatus 
-} from '../../types';
-import { 
-  LogOut, 
-  LogIn, 
-  QrCode, 
   Filter, 
   ChevronLeft, 
   ChevronRight, 
-  User 
+  User, 
+  Phone, 
+  Mail, 
+  Eye, 
+  Trash2,
+  Calendar,
+  Building2
 } from 'lucide-react';
 
 interface VisitorTableProps {
-  visitors: Visitor[];
-  onStatusChange: (id: string, newStatus: VisitorStatus) => void;
-  onSelectVisitor: (visitor: Visitor) => void;
+  visitors: Customer[];
+  onStatusChange?: (id: string, newStatus: any) => void;
+  onSelectVisitor: (customer: Customer) => void;
+  onDeleteCustomer?: (id: string) => void;
   searchTerm: string;
 }
 
 export const VisitorTable: React.FC<VisitorTableProps> = ({
   visitors,
-  onStatusChange,
   onSelectVisitor,
+  onDeleteCustomer,
   searchTerm,
 }) => {
-  const [statusFilter, setStatusFilter] = useState<'all' | VisitorStatus>('all');
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week'>('all');
   const [purposeFilter, setPurposeFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const pageSize = 7;
+  const pageSize = 8;
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
   // Filter logic
   const filtered = visitors.filter((v) => {
@@ -37,18 +42,28 @@ export const VisitorTable: React.FC<VisitorTableProps> = ({
     const q = searchTerm.toLowerCase();
     const matchesSearch =
       v.fullName.toLowerCase().includes(q) ||
-      v.company.toLowerCase().includes(q) ||
-      v.hostName.toLowerCase().includes(q) ||
-      v.badgeNumber.toLowerCase().includes(q) ||
-      v.id.toLowerCase().includes(q);
+      (v.company && v.company.toLowerCase().includes(q)) ||
+      (v.phone && v.phone.toLowerCase().includes(q)) ||
+      (v.email && v.email.toLowerCase().includes(q)) ||
+      (v.city && v.city.toLowerCase().includes(q)) ||
+      (v.id && v.id.toLowerCase().includes(q)) ||
+      (v.notes && v.notes.toLowerCase().includes(q));
 
-    // Status filter
-    const matchesStatus = statusFilter === 'all' || v.status === statusFilter;
+    // Date filter
+    let matchesDate = true;
+    if (dateFilter === 'today') {
+      matchesDate = v.registeredDate === todayStr || (v.registeredAt && v.registeredAt.startsWith(todayStr));
+    } else if (dateFilter === 'week') {
+      if (v.registeredDate) {
+        const d = new Date(v.registeredDate);
+        matchesDate = !isNaN(d.getTime()) && d >= sevenDaysAgo;
+      }
+    }
 
     // Purpose filter
     const matchesPurpose = purposeFilter === 'all' || v.purpose === purposeFilter;
 
-    return matchesSearch && matchesStatus && matchesPurpose;
+    return matchesSearch && matchesDate && matchesPurpose;
   });
 
   // Pagination
@@ -58,98 +73,57 @@ export const VisitorTable: React.FC<VisitorTableProps> = ({
     currentPage * pageSize
   );
 
-  const getStatusBadge = (status: VisitorStatus) => {
-    switch (status) {
-      case 'checked_in':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Checked In
-          </span>
-        );
-      case 'expected':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/60">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            Expected
-          </span>
-        );
-      case 'checked_out':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
-            Departed
-          </span>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="bg-white rounded-lg border border-slate-200/90 shadow-2xs overflow-hidden">
       {/* Table Controls / Filter Toolbar */}
       <div className="p-4 border-b border-slate-200/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white">
-        {/* Status Tabs */}
+        {/* Time Period Tabs */}
         <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200/60 self-start sm:self-auto">
           <button
             type="button"
             onClick={() => {
-              setStatusFilter('all');
+              setDateFilter('all');
               setCurrentPage(1);
             }}
-            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-              statusFilter === 'all'
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+              dateFilter === 'all'
                 ? 'bg-white text-slate-900 shadow-2xs font-semibold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            All ({visitors.length})
+            All Customers ({visitors.length})
           </button>
           <button
             type="button"
             onClick={() => {
-              setStatusFilter('checked_in');
+              setDateFilter('today');
               setCurrentPage(1);
             }}
-            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-              statusFilter === 'checked_in'
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+              dateFilter === 'today'
                 ? 'bg-white text-emerald-800 shadow-2xs font-semibold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Checked In ({visitors.filter((v) => v.status === 'checked_in').length})
+            Registered Today ({visitors.filter((v) => v.registeredDate === todayStr || v.registeredAt?.startsWith(todayStr)).length})
           </button>
           <button
             type="button"
             onClick={() => {
-              setStatusFilter('expected');
+              setDateFilter('week');
               setCurrentPage(1);
             }}
-            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-              statusFilter === 'expected'
-                ? 'bg-white text-amber-800 shadow-2xs font-semibold'
+            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+              dateFilter === 'week'
+                ? 'bg-white text-blue-800 shadow-2xs font-semibold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Expected ({visitors.filter((v) => v.status === 'expected').length})
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setStatusFilter('checked_out');
-              setCurrentPage(1);
-            }}
-            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-              statusFilter === 'checked_out'
-                ? 'bg-white text-slate-900 shadow-2xs font-semibold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Departed ({visitors.filter((v) => v.status === 'checked_out').length})
+            Last 7 Days
           </button>
         </div>
 
-        {/* Purpose Filter & Count summary */}
+        {/* Purpose Filter */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <Filter className="w-3.5 h-3.5 text-slate-400" />
@@ -159,39 +133,36 @@ export const VisitorTable: React.FC<VisitorTableProps> = ({
                 setPurposeFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-md py-1.5 pl-2 pr-7 focus:outline-none focus:ring-1 focus:ring-blue-600"
+              className="text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-md py-1.5 pl-2 pr-7 focus:outline-none focus:ring-1 focus:ring-blue-600 cursor-pointer"
             >
-              <option value="all">All Visit Purposes</option>
+              <option value="all">All Inquiry Categories</option>
+              <option value="Product Inquiry">Product Inquiry</option>
+              <option value="Sales & Purchase">Sales & Purchase</option>
               <option value="Client Meeting">Client Meeting</option>
-              <option value="Interview">Job Interview</option>
-              <option value="Vendor & Contractor">Vendor & Contractor</option>
-              <option value="Consulting">Consulting & Advisory</option>
-              <option value="Board & Executive">Board & Executive</option>
-              <option value="Personal Visit">Personal Visit</option>
+              <option value="Service & Support">Service & Support</option>
+              <option value="Consultation">Consultation</option>
+              <option value="General Inquiry">General Inquiry</option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* Semantic Table Wrapper adhering to modern-web-guidance */}
+      {/* Semantic Table */}
       <div 
         tabIndex={0} 
         role="region" 
-        aria-labelledby="visitor-table-caption" 
-        className="overflow-x-auto max-w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
+        aria-label="Customer records directory" 
+        className="overflow-x-auto max-w-full focus:outline-none"
       >
         <table className="w-full text-left border-collapse">
-          <caption id="visitor-table-caption" className="sr-only">
-            Active building visitors and daily registration manifest
-          </caption>
-          <thead className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider sticky top-0 z-10">
+          <thead className="bg-slate-50/90 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider sticky top-0 z-10">
             <tr>
-              <th scope="col" className="py-3 px-4 sm:px-6">Visitor & Company</th>
-              <th scope="col" className="py-3 px-4">Badge / ID</th>
-              <th scope="col" className="py-3 px-4">Host Employee</th>
-              <th scope="col" className="py-3 px-4">Purpose</th>
-              <th scope="col" className="py-3 px-4">Time & Check-In</th>
-              <th scope="col" className="py-3 px-4">Status</th>
+              <th scope="col" className="py-3 px-4 sm:px-6">Customer & Contact</th>
+              <th scope="col" className="py-3 px-4">Customer ID</th>
+              <th scope="col" className="py-3 px-4">Company / Location</th>
+              <th scope="col" className="py-3 px-4">Inquiry Category</th>
+              <th scope="col" className="py-3 px-4">Registration Date & Time</th>
+              <th scope="col" className="py-3 px-4">Notes / Requirement</th>
               <th scope="col" className="py-3 px-4 sm:px-6 text-right">Actions</th>
             </tr>
           </thead>
@@ -202,113 +173,140 @@ export const VisitorTable: React.FC<VisitorTableProps> = ({
                   <User className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                   <div className="font-semibold text-slate-700 text-sm">
                     {visitors.length === 0
-                      ? 'No visitor check-ins recorded yet today'
-                      : 'No visitors matching your filter'}
+                      ? 'No customer details collected yet'
+                      : 'No customer matching your search or filter'}
                   </div>
                   <div className="text-slate-400 text-xs mt-1 max-w-sm mx-auto">
                     {visitors.length === 0
-                      ? 'New guest registrations submitted at the visitor kiosk or pre-registered by security will appear here instantly.'
-                      : 'Try clearing your search query or switching the status filter tab.'}
+                      ? 'New customer details entered via the customer kiosk, mobile QR scan, or added manually will appear here.'
+                      : 'Try clearing your search query or reset the date filter.'}
                   </div>
                 </td>
               </tr>
             ) : (
-              paginatedVisitors.map((visitor) => (
+              paginatedVisitors.map((customer) => (
                 <tr 
-                  key={visitor.id} 
+                  key={customer.id} 
                   className="hover:bg-slate-50/70 transition-colors group cursor-default"
                 >
-                  {/* Visitor name & company */}
+                  {/* Customer name & phone */}
                   <td className="py-3.5 px-4 sm:px-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-xs text-slate-700 shrink-0">
-                        {visitor.fullName.slice(0, 2).toUpperCase()}
+                      <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200/70 flex items-center justify-center font-bold text-xs text-blue-700 shrink-0">
+                        {customer.fullName.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
                         <button
                           type="button"
-                          onClick={() => onSelectVisitor(visitor)}
-                          className="font-semibold text-slate-900 hover:text-blue-600 transition-colors text-left"
+                          onClick={() => onSelectVisitor(customer)}
+                          className="font-semibold text-slate-900 hover:text-blue-600 transition-colors text-left cursor-pointer"
                         >
-                          {visitor.fullName}
+                          {customer.fullName}
                         </button>
-                        <div className="text-[11px] text-slate-500 font-normal">
-                          {visitor.company} • {visitor.phone}
+                        <div className="text-[11px] text-slate-500 flex items-center gap-1.5 mt-0.5">
+                          <Phone className="w-3 h-3 text-slate-400" />
+                          <a href={`tel:${customer.phone}`} className="hover:text-blue-600 hover:underline">
+                            {customer.phone}
+                          </a>
                         </div>
                       </div>
                     </div>
                   </td>
 
-                  {/* Badge */}
+                  {/* Customer ID */}
                   <td className="py-3.5 px-4 font-mono font-medium text-slate-700">
                     <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 text-[11px]">
-                      {visitor.badgeNumber}
+                      {customer.id}
                     </span>
                   </td>
 
-                  {/* Host */}
+                  {/* Company & City */}
                   <td className="py-3.5 px-4">
-                    <div className="font-medium text-slate-800">{visitor.hostName}</div>
-                    <div className="text-[11px] text-slate-500">{visitor.hostDepartment}</div>
+                    <div className="font-medium text-slate-800 flex items-center gap-1">
+                      <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
+                      <span>{customer.company || 'Individual'}</span>
+                    </div>
+                    {customer.city && (
+                      <div className="text-[11px] text-slate-500">{customer.city}</div>
+                    )}
                   </td>
 
                   {/* Purpose */}
                   <td className="py-3.5 px-4">
-                    <span className="inline-block px-2 py-0.5 text-[11px] font-medium bg-slate-100 text-slate-700 rounded">
-                      {visitor.purpose}
+                    <span className="inline-block px-2.5 py-0.5 text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-200/60 rounded">
+                      {customer.purpose}
                     </span>
                   </td>
 
-                  {/* Time & Check in */}
+                  {/* Date & Time */}
                   <td className="py-3.5 px-4 text-slate-600">
-                    <div className="font-medium text-slate-800">
-                      {visitor.checkInTime || visitor.expectedTime}
-                    </div>
-                    <div className="text-[11px] text-slate-400">
-                      {visitor.status === 'checked_in' ? 'Checked in' : visitor.status === 'expected' ? 'Expected today' : 'Checked out'}
+                    <div className="font-medium text-slate-800 flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                      <span>{customer.registeredAt}</span>
                     </div>
                   </td>
 
-                  {/* Status */}
-                  <td className="py-3.5 px-4">
-                    {getStatusBadge(visitor.status)}
+                  {/* Notes / Requirement */}
+                  <td className="py-3.5 px-4 max-w-xs truncate text-slate-500">
+                    {customer.notes ? (
+                      <span title={customer.notes} className="line-clamp-1">
+                        {customer.notes}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400 italic">None</span>
+                    )}
                   </td>
 
                   {/* Actions */}
                   <td className="py-3.5 px-4 sm:px-6 text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      {/* Quick check-in / check-out button */}
-                      {visitor.status === 'expected' && (
-                        <button
-                          type="button"
-                          onClick={() => onStatusChange(visitor.id, 'checked_in')}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-2xs"
-                        >
-                          <LogIn className="w-3 h-3" />
-                          <span>Check In</span>
-                        </button>
-                      )}
-
-                      {visitor.status === 'checked_in' && (
-                        <button
-                          type="button"
-                          onClick={() => onStatusChange(visitor.id, 'checked_out')}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-2xs"
-                        >
-                          <LogOut className="w-3 h-3 text-slate-500" />
-                          <span>Check Out</span>
-                        </button>
-                      )}
-
-                      {/* View Pass / Badge */}
+                      {/* View Details */}
                       <button
                         type="button"
-                        onClick={() => onSelectVisitor(visitor)}
-                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                        title="View Visitor Pass & QR"
+                        onClick={() => onSelectVisitor(customer)}
+                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer"
+                        title="View Customer Profile"
                       >
-                        <QrCode className="w-4 h-4" />
+                        <Eye className="w-4 h-4" />
                       </button>
+
+                      {/* Direct Phone Call */}
+                      {customer.phone && (
+                        <a
+                          href={`tel:${customer.phone}`}
+                          className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
+                          title={`Call ${customer.phone}`}
+                        >
+                          <Phone className="w-4 h-4" />
+                        </a>
+                      )}
+
+                      {/* Direct Email */}
+                      {customer.email && (
+                        <a
+                          href={`mailto:${customer.email}`}
+                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                          title={`Email ${customer.email}`}
+                        >
+                          <Mail className="w-4 h-4" />
+                        </a>
+                      )}
+
+                      {/* Delete */}
+                      {onDeleteCustomer && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`Delete customer record for "${customer.fullName}"?`)) {
+                              onDeleteCustomer(customer.id);
+                            }
+                          }}
+                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+                          title="Delete Customer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -329,7 +327,7 @@ export const VisitorTable: React.FC<VisitorTableProps> = ({
           <span className="font-semibold text-slate-900">
             {Math.min(currentPage * pageSize, filtered.length)}
           </span>{' '}
-          of <span className="font-semibold text-slate-900">{filtered.length}</span> visitors
+          of <span className="font-semibold text-slate-900">{filtered.length}</span> customers
         </div>
 
         <div className="flex items-center gap-2">

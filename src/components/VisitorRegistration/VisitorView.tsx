@@ -2,53 +2,53 @@ import React, { useState } from 'react';
 import { RegistrationForm } from './RegistrationForm';
 import { SuccessBadge } from './SuccessBadge';
 import { MobileQRModal } from './MobileQRModal';
-import { Visitor } from '../../types';
-import { saveVisitor } from '../../utils/storage';
-import { ShieldCheck, HelpCircle, Shield, QrCode } from 'lucide-react';
+import { Customer } from '../../types';
+import { saveCustomer } from '../../utils/storage';
+import { ShieldCheck, HelpCircle, Users, QrCode } from 'lucide-react';
 
 interface VisitorViewProps {
-  onVisitorRegistered: (visitor: Visitor) => void;
+  onVisitorRegistered: (customer: Customer) => void;
   onSwitchToAdmin: () => void;
-  checkedInCount: number;
+  totalCustomersCount: number;
 }
 
 export const VisitorView: React.FC<VisitorViewProps> = ({ 
   onVisitorRegistered,
   onSwitchToAdmin,
-  checkedInCount,
+  totalCustomersCount,
 }) => {
-  const [registeredVisitor, setRegisteredVisitor] = useState<Visitor | null>(null);
+  const [registeredCustomer, setRegisteredCustomer] = useState<Customer | null>(null);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
 
-  const handleRegistrationComplete = (newVisitor: Visitor) => {
-    saveVisitor(newVisitor);
-    setRegisteredVisitor(newVisitor);
-    onVisitorRegistered(newVisitor);
+  const handleRegistrationComplete = (newCustomer: Customer) => {
+    saveCustomer(newCustomer);
+    setRegisteredCustomer(newCustomer);
+    onVisitorRegistered(newCustomer);
   };
 
   const handleReset = () => {
-    setRegisteredVisitor(null);
+    setRegisteredCustomer(null);
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
-      {/* Top Corporate Kiosk Header */}
+      {/* Top Header */}
       <header className="bg-white border-b border-slate-200/80 sticky top-0 z-20 shadow-2xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo & Facility */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white font-bold text-sm tracking-wider shadow-xs">
-              AP
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm tracking-wider shadow-xs">
+              CD
             </div>
             <div>
               <div className="text-sm font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
-                AuraPass
+                CustomerDesk
                 <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200/60">
-                  Guest Kiosk
+                  Customer Entry
                 </span>
               </div>
               <div className="text-[11px] text-slate-500 hidden sm:block">
-                HQ Campus • Main Lobby Concierge
+                Client Registration & Inquiry Desk
               </div>
             </div>
           </div>
@@ -71,11 +71,11 @@ export const VisitorView: React.FC<VisitorViewProps> = ({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200/80 border border-slate-200/70 transition-colors cursor-pointer"
               title="Switch to Admin Dashboard"
             >
-              <Shield className="w-3.5 h-3.5 text-slate-600" />
-              <span className="hidden sm:inline">Admin Console</span>
-              {checkedInCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-mono font-bold">
-                  {checkedInCount} live
+              <Users className="w-3.5 h-3.5 text-slate-600" />
+              <span className="hidden sm:inline">Customer Directory</span>
+              {totalCustomersCount > 0 && (
+                <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-blue-100 text-blue-800 font-mono font-bold">
+                  {totalCustomersCount}
                 </span>
               )}
             </button>
@@ -85,25 +85,25 @@ export const VisitorView: React.FC<VisitorViewProps> = ({
 
       {/* Main Form or Success Screen */}
       <main className="flex-1 flex items-center justify-center py-6 sm:py-10 px-4">
-        {!registeredVisitor ? (
+        {!registeredCustomer ? (
           <RegistrationForm onSubmitSuccess={handleRegistrationComplete} />
         ) : (
-          <SuccessBadge visitor={registeredVisitor} onReset={handleReset} />
+          <SuccessBadge visitor={registeredCustomer} onReset={handleReset} />
         )}
       </main>
 
-      {/* Discreet Corporate Footer */}
+      {/* Discreet Footer */}
       <footer className="border-t border-slate-200/60 bg-white/70 py-4 px-4 sm:px-6 text-xs text-slate-500">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start gap-1.5 text-slate-500">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Encrypted Check-In • Authorized Access Only</span>
+            <span>Secure Customer Records • Private & Protected</span>
           </div>
 
           <div className="flex items-center justify-center sm:justify-start gap-1.5 text-slate-500">
             <HelpCircle className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span>
-              Touchless check-in:{' '}
+              Self-registration on mobile:{' '}
               <button
                 type="button"
                 onClick={() => setIsQRModalOpen(true)}
@@ -116,7 +116,7 @@ export const VisitorView: React.FC<VisitorViewProps> = ({
         </div>
       </footer>
 
-      {/* Touchless Mobile Check-In QR Modal */}
+      {/* Touchless Mobile Customer Registration QR Modal */}
       <MobileQRModal
         isOpen={isQRModalOpen}
         onClose={() => setIsQRModalOpen(false)}

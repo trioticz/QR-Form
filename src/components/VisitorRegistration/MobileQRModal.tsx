@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { X, Smartphone, Copy, Check, ExternalLink } from 'lucide-react';
+import { X, Smartphone, Copy, Check } from 'lucide-react';
 
 interface MobileQRModalProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose })
 
   // Prefer host IP for cross-device mobile scanning
   const currentHost = typeof window !== 'undefined' ? window.location.hostname : '10.14.205.164';
-  const port = typeof window !== 'undefined' && window.location.port ? `:${window.location.port}` : ':5173';
+  const port = typeof window !== 'undefined' && window.location.port ? `:${window.location.port}` : ':5175';
   const isLocalhost = currentHost === 'localhost' || currentHost === '127.0.0.1';
   
   // If user is on localhost on desktop, use the Wi-Fi network IP so mobile phone camera scanning works!
@@ -43,9 +43,9 @@ export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose })
             </div>
             <div>
               <h3 id="qr-modal-title" className="text-sm font-bold text-white tracking-tight">
-                Mobile Check-In
+                Mobile Registration
               </h3>
-              <p className="text-[11px] text-slate-400">Touchless Guest Registration</p>
+              <p className="text-[11px] text-slate-400">Scan to fill on your phone</p>
             </div>
           </div>
           <button
@@ -61,7 +61,7 @@ export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose })
         {/* Content */}
         <div className="p-6 text-center">
           <p className="text-xs text-slate-600 mb-5 max-w-xs mx-auto">
-            Scan with your smartphone camera to open the visitor check-in form and save your badge directly to your device.
+            Scan with your smartphone camera to open the customer registration form directly on your mobile device.
           </p>
 
           {/* QR Code Container */}
@@ -76,7 +76,7 @@ export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose })
 
           <div className="space-y-1 mb-5">
             <div className="text-xs font-semibold text-slate-900">
-              Scan to Register on Your Device
+              Quick Customer Entry Form
             </div>
             <div className="font-mono text-[11px] text-slate-500 break-all px-2">
               {qrUrl}
@@ -87,7 +87,7 @@ export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose })
           <button
             type="button"
             onClick={handleCopy}
-            className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+            className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
           >
             {copied ? (
               <>
@@ -97,7 +97,7 @@ export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose })
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5 text-slate-500" />
-                <span>Copy Check-In Link</span>
+                <span>Copy Form Link</span>
               </>
             )}
           </button>
@@ -105,10 +105,9 @@ export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose })
 
         {/* Footer */}
         <div className="bg-slate-50 px-6 py-3 border-t border-slate-100 text-center text-[11px] text-slate-400">
-          Ensure your phone is connected to the guest or office Wi-Fi network.
+          Customers can easily fill their details on their phone.
         </div>
       </div>
     </div>
   );
 };
-

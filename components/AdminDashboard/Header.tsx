@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Menu, 
   Search, 
-  Plus, 
+  UserPlus, 
   Download, 
   Clock, 
   RefreshCw,
@@ -66,9 +66,9 @@ export const Header: React.FC<HeaderProps> = ({
 
         <div className="hidden sm:block">
           <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <span>AuraPass Enterprise</span>
+            <span>CustomerDesk</span>
             <span>/</span>
-            <span className="text-slate-900 font-semibold">Today's Visitor Manifest</span>
+            <span className="text-slate-900 font-semibold">Customer Records Directory</span>
           </div>
         </div>
       </div>
@@ -79,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
           <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
           <input
             type="text"
-            placeholder="Search visitor name, company, host, or badge..."
+            placeholder="Search customer name, phone, email, company, notes..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-9 pr-12 py-1.5 text-xs bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
@@ -90,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Right: Actions, Clock, Switch to Kiosk */}
+      {/* Right: Actions, Clock, Switch to Form */}
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Live Clock */}
         <div className="hidden xl:flex items-center gap-2 text-xs text-slate-500 border-r border-slate-200 pr-3">
@@ -104,22 +104,22 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           type="button"
           onClick={onRefresh}
-          className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors"
+          className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors cursor-pointer"
           title="Refresh Data"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
 
-        {/* Clear Manifest (if entries exist) */}
+        {/* Clear Records */}
         {totalVisitors > 0 && (
           <button
             type="button"
             onClick={onClearManifest}
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
-            title="Clear all records"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
+            title="Clear all customer records"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            <span className="hidden xl:inline">Clear</span>
+            <span className="hidden xl:inline">Clear All</span>
           </button>
         )}
 
@@ -127,31 +127,31 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           type="button"
           onClick={onExportCSV}
-          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-2xs"
+          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-2xs cursor-pointer"
         >
           <Download className="w-3.5 h-3.5 text-slate-500" />
           <span>Export CSV</span>
         </button>
 
-        {/* Pre-Register Action Button */}
+        {/* Add Customer Action Button */}
         <button
           type="button"
           onClick={onOpenPreRegister}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-md transition-colors shadow-xs"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-md transition-colors shadow-xs cursor-pointer"
         >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Pre-Register</span>
+          <UserPlus className="w-3.5 h-3.5" />
+          <span>+ Add Customer</span>
         </button>
 
-        {/* Switch to Kiosk View Button */}
+        {/* Switch to Customer Form Button */}
         <button
           type="button"
           onClick={onSwitchToKiosk}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-md transition-colors"
-          title="Open Public Visitor Registration Kiosk"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-md transition-colors cursor-pointer"
+          title="Open Customer Registration Form"
         >
           <ExternalLink className="w-3.5 h-3.5 text-slate-600" />
-          <span className="hidden sm:inline">Visitor Kiosk</span>
+          <span className="hidden sm:inline">Customer Form</span>
         </button>
       </div>
     </header>

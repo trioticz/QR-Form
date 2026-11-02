@@ -1,29 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { VisitorView } from './components/VisitorRegistration/VisitorView';
 import { AdminDashboard } from './components/AdminDashboard/AdminDashboard';
-import { Visitor } from './types';
-import { getStoredVisitors } from './utils/storage';
+import { Customer } from './types';
+import { getStoredCustomers } from './utils/storage';
 
 export type AppViewMode = 'visitor' | 'admin';
 
 export const App: React.FC = () => {
-  const [visitors, setVisitors] = useState<Visitor[]>([]);
+  const [visitors, setVisitors] = useState<Customer[]>([]);
   const [viewMode, setViewMode] = useState<AppViewMode>('visitor');
 
   useEffect(() => {
-    const loaded = getStoredVisitors();
+    const loaded = getStoredCustomers();
     setVisitors(loaded);
   }, []);
 
-  const handleVisitorRegistered = (newVisitor: Visitor) => {
-    setVisitors((prev) => [newVisitor, ...prev]);
+  const handleVisitorRegistered = (newCustomer: Customer) => {
+    setVisitors((prev) => [newCustomer, ...prev]);
   };
 
-  const handleVisitorsUpdated = (updated: Visitor[]) => {
+  const handleVisitorsUpdated = (updated: Customer[]) => {
     setVisitors(updated);
   };
-
-  const checkedInCount = visitors.filter((v) => v.status === 'checked_in').length;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 antialiased">
@@ -31,7 +29,7 @@ export const App: React.FC = () => {
         <VisitorView
           onVisitorRegistered={handleVisitorRegistered}
           onSwitchToAdmin={() => setViewMode('admin')}
-          checkedInCount={checkedInCount}
+          totalCustomersCount={visitors.length}
         />
       ) : (
         <AdminDashboard

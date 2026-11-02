@@ -5,12 +5,12 @@ import { StatCards } from './StatCards';
 import { VisitorTable } from './VisitorTable';
 import { VisitorDetailModal } from './VisitorDetailModal';
 import { PreRegisterModal } from './PreRegisterModal';
-import { Visitor, VisitorStatus } from '../../types';
-import { saveVisitor, updateVisitorStatus, clearAllVisitors } from '../../utils/storage';
+import { Customer } from '../../types';
+import { saveCustomer, deleteCustomer, clearAllCustomers } from '../../utils/storage';
 
 interface AdminDashboardProps {
-  visitors: Visitor[];
-  onVisitorsUpdated: (visitors: Visitor[]) => void;
+  visitors: Customer[];
+  onVisitorsUpdated: (visitors: Customer[]) => void;
   onSwitchToKiosk: () => void;
 }
 
@@ -22,28 +22,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [selectedVisitor, setSelectedVisitor] = useState<Visitor | null>(null);
+  const [selectedVisitor, setSelectedVisitor] = useState<Customer | null>(null);
   const [isPreRegisterOpen, setIsPreRegisterOpen] = useState<boolean>(false);
 
-  const checkedInCount = visitors.filter((v) => v.status === 'checked_in').length;
+  const handlePreRegisterSave = (newCustomer: Customer) => {
+    const updated = saveCustomer(newCustomer);
+    onVisitorsUpdated(updated);
+  };
 
-  const handleStatusChange = (id: string, newStatus: VisitorStatus) => {
-    const updated = updateVisitorStatus(id, newStatus);
+  const handleDeleteCustomer = (id: string) => {
+    const updated = deleteCustomer(id);
     onVisitorsUpdated(updated);
     if (selectedVisitor && selectedVisitor.id === id) {
-      const refreshedSelected = updated.find((v) => v.id === id) || null;
-      setSelectedVisitor(refreshedSelected);
+      setSelectedVisitor(null);
     }
   };
 
-  const handlePreRegisterSave = (newVisitor: Visitor) => {
-    const updated = saveVisitor(newVisitor);
-    onVisitorsUpdated(updated);
-  };
-
   const handleClearManifest = () => {
-    if (window.confirm('Clear all visitor records from the manifest?')) {
-      const cleared = clearAllVisitors();
+    if (window.confirm('Are you sure you want to clear all customer records?')) {
+      const cleared = clearAllCustomers();
       onVisitorsUpdated(cleared);
       setSelectedVisitor(null);
     }
@@ -51,53 +48,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const handleExportCSV = () => {
     if (visitors.length === 0) {
-      alert('No visitor records to export.');
+      alert('No customer records to export.');
       return;
     }
     const headers = [
-      'ID',
-      'Badge',
+      'Customer ID',
       'Full Name',
-      'Email',
-      'Phone',
-      'Company',
-      'Host Name',
-      'Host Department',
-      'Purpose',
-      'Location',
-      'Expected Date',
-      'Expected Time',
-      'Check In Time',
-      'Check Out Time',
-      'Status',
+      'Phone Number',
+      'Email Address',
+      'Company / Business',
+      'City / Location',
+      'Inquiry Category',
+      'Registration Date & Time',
+      'Notes / Requirement',
     ];
 
     const rows = visitors.map((v) => [
       v.id,
-      v.badgeNumber,
-      `"${v.fullName.replace(/"/g, '""')}"`,
-      v.email,
-      v.phone,
-      `"${v.company.replace(/"/g, '""')}"`,
-      `"${v.hostName.replace(/"/g, '""')}"`,
-      `"${v.hostDepartment.replace(/"/g, '""')}"`,
-      `"${v.purpose}"`,
-      `"${v.location}"`,
-      v.expectedDate,
-      v.expectedTime,
-      v.checkInTime || '',
-      v.checkOutTime || '',
-      v.status,
+      `"${(v.fullName || '').replace(/"/g, '""')}"`,
+      `"${(v.phone || '').replace(/"/g, '""')}"`,
+      `"${(v.email || '').replace(/"/g, '""')}"`,
+      `"${(v.company || '').replace(/"/g, '""')}"`,
+      `"${(v.city || '').replace(/"/g, '""')}"`,
+      `"${(v.purpose || '').replace(/"/g, '""')}"`,
+      `"${(v.registeredAt || '').replace(/"/g, '""')}"`,
+      `"${(v.notes || '').replace(/"/g, '""')}"`,
     ]);
 
     const csvContent =
-      'data:text/csv;charset=utf-8,' +
+      'data:text/csv;charset=utf-8,\uFEFF' +
       [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `aurapass_manifest_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `customer_records_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -111,7 +96,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         setActiveTab={setActiveTab}
         isOpenMobile={isMobileMenuOpen}
         onCloseMobile={() => setIsMobileMenuOpen(false)}
-        checkedInCount={checkedInCount}
       />
 
       {/* Main Content Area */}
@@ -135,10 +119,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-                Visitor Access Command Center
+                Customer Information Directory
               </h1>
               <p className="text-xs text-slate-500 mt-1">
-                Real-time security manifest, automated check-in verification, and guest occupancy logs.
+                Centralized registry of collected customer contact details, inquiries, and requirements.
               </p>
             </div>
 
@@ -148,38 +132,37 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           </div>
 
-          {/* Key Metric Cards */}
+          {/* Customer Metric Cards */}
           <StatCards visitors={visitors} />
 
-          {/* Main Visitor Data Table & Controls */}
+          {/* Customer Data Table */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-bold text-slate-900 tracking-tight">
-                Current Manifest & Check-In Log
+                All Customer Records & Inquiries
               </h2>
               <span className="text-xs text-slate-500">
-                Sorted by most recent activity
+                Sorted by most recent entries
               </span>
             </div>
 
             <VisitorTable
               visitors={visitors}
-              onStatusChange={handleStatusChange}
               onSelectVisitor={(v) => setSelectedVisitor(v)}
+              onDeleteCustomer={handleDeleteCustomer}
               searchTerm={searchTerm}
             />
           </div>
         </main>
       </div>
 
-      {/* Detail Slideover / Modal */}
+      {/* Customer Detail Modal */}
       <VisitorDetailModal
         visitor={selectedVisitor}
         onClose={() => setSelectedVisitor(null)}
-        onStatusChange={handleStatusChange}
       />
 
-      {/* Pre-Register Modal */}
+      {/* Add Customer Modal */}
       <PreRegisterModal
         isOpen={isPreRegisterOpen}
         onClose={() => setIsPreRegisterOpen(false)}

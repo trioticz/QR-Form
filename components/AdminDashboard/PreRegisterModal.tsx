@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { X, CalendarClock, Plus, UserCheck } from 'lucide-react';
-import { Visitor, VisitPurpose } from '../../types';
-import { DEPARTMENTS } from '../../data/departments';
+import { X, UserPlus, Plus } from 'lucide-react';
+import { Customer, CustomerPurpose } from '../../types';
 
 interface PreRegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (visitor: Visitor) => void;
+  onSave: (customer: Customer) => void;
 }
 
 export const PreRegisterModal: React.FC<PreRegisterModalProps> = ({
@@ -15,47 +14,46 @@ export const PreRegisterModal: React.FC<PreRegisterModalProps> = ({
   onSave,
 }) => {
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
-  const [hostName, setHostName] = useState('');
-  const [hostDepartment, setHostDepartment] = useState<string>(DEPARTMENTS[0]);
-  const [purpose, setPurpose] = useState<VisitPurpose>('Client Meeting');
-  const [expectedTime, setExpectedTime] = useState('14:00');
+  const [city, setCity] = useState('');
+  const [purpose, setPurpose] = useState<CustomerPurpose>('Product Inquiry');
   const [notes, setNotes] = useState('');
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName.trim() || !email.trim() || !hostName.trim()) return;
+    if (!fullName.trim() || !phone.trim()) return;
 
     const now = new Date();
-    const randomBadgeNum = `G-${Math.floor(100 + Math.random() * 900)}`;
-    const randomId = `VIS-${Math.floor(1000 + Math.random() * 9000)}`;
+    const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateFormatted = now.toISOString().slice(0, 10);
+    const randomId = `CUST-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    const newVisitor: Visitor = {
+    const newCustomer: Customer = {
       id: randomId,
-      badgeNumber: randomBadgeNum,
       fullName: fullName.trim(),
-      email: email.trim().toLowerCase(),
-      phone: phone.trim() || '+1 (555) 000-0000',
-      company: company.trim() || 'Independent Guest',
-      hostName: hostName.trim(),
-      hostDepartment,
-      hostEmail: `${hostName.trim().toLowerCase().replace(/\s+/g, '.')}@internal.corp`,
+      phone: phone.trim(),
+      email: email.trim().toLowerCase() || '',
+      company: company.trim() || 'Individual',
+      city: city.trim() || undefined,
       purpose,
-      location: `Floor & Room for ${hostDepartment}`,
-      expectedDate: now.toISOString().slice(0, 10),
-      expectedTime,
-      status: 'expected',
-      ndaSigned: true,
       notes: notes.trim() || undefined,
-      registeredAt: now.toISOString().replace('T', ' ').slice(0, 16),
+      registeredAt: `${dateFormatted} ${timeFormatted}`,
+      registeredDate: dateFormatted,
     };
 
-    onSave(newVisitor);
+    onSave(newCustomer);
     onClose();
+    // Reset form
+    setFullName('');
+    setPhone('');
+    setEmail('');
+    setCompany('');
+    setCity('');
+    setNotes('');
   };
 
   return (
@@ -64,22 +62,22 @@ export const PreRegisterModal: React.FC<PreRegisterModalProps> = ({
         className="bg-white rounded-xl max-w-lg w-full border border-slate-200 shadow-xl overflow-hidden animate-fadeIn"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="preregister-modal-title"
+        aria-labelledby="add-customer-modal-title"
       >
         <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <CalendarClock className="w-5 h-5 text-blue-400" />
+            <UserPlus className="w-5 h-5 text-blue-400" />
             <div>
-              <h3 id="preregister-modal-title" className="text-sm font-bold text-white">
-                Pre-Register Upcoming Visitor
+              <h3 id="add-customer-modal-title" className="text-sm font-bold text-white">
+                Add Customer Entry
               </h3>
-              <p className="text-[11px] text-slate-400">Schedule guest arrival & pre-issue security pass</p>
+              <p className="text-[11px] text-slate-400">Manually record customer contact & requirement</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-md transition-colors"
+            className="p-1.5 text-slate-400 hover:text-white rounded-md transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -88,12 +86,12 @@ export const PreRegisterModal: React.FC<PreRegisterModalProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-              Visitor Full Name *
+              Customer Full Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               required
-              placeholder="e.g. Marcus Aurelius"
+              placeholder="e.g. Anand Sharma"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
@@ -103,26 +101,26 @@ export const PreRegisterModal: React.FC<PreRegisterModalProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                Email Address *
+                Mobile Number <span className="text-red-500">*</span>
               </label>
               <input
-                type="email"
+                type="tel"
                 required
-                placeholder="email@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g. 98765 43210"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                Phone Number
+                Email Address
               </label>
               <input
-                type="tel"
-                placeholder="+1 (555) 000-0000"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                type="email"
+                placeholder="customer@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
             </div>
@@ -131,11 +129,11 @@ export const PreRegisterModal: React.FC<PreRegisterModalProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                Company / Organization
+                Company / Business
               </label>
               <input
                 type="text"
-                placeholder="Organization name"
+                placeholder="e.g. Apex Corp or Individual"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
@@ -143,74 +141,43 @@ export const PreRegisterModal: React.FC<PreRegisterModalProps> = ({
             </div>
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                Expected Arrival Time
-              </label>
-              <input
-                type="time"
-                value={expectedTime}
-                onChange={(e) => setExpectedTime(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                Host / Employee to Visit *
+                City / Location
               </label>
               <input
                 type="text"
-                required
-                placeholder="e.g. Sarah Jenkins"
-                value={hostName}
-                onChange={(e) => setHostName(e.target.value)}
+                placeholder="e.g. Chennai, Bangalore"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
                 className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-                Host Department
-              </label>
-              <select
-                value={hostDepartment}
-                onChange={(e) => setHostDepartment(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-              >
-                {DEPARTMENTS.map((dept) => (
-                  <option key={dept} value={dept}>
-                    {dept}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-              Visit Purpose
+              Inquiry / Requirement Category
             </label>
             <select
               value={purpose}
-              onChange={(e) => setPurpose(e.target.value as VisitPurpose)}
+              onChange={(e) => setPurpose(e.target.value as CustomerPurpose)}
               className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
+              <option value="Product Inquiry">Product Inquiry</option>
+              <option value="Sales & Purchase">Sales & Purchase</option>
               <option value="Client Meeting">Client Meeting</option>
-              <option value="Interview">Job Interview</option>
-              <option value="Vendor & Contractor">Vendor & Contractor</option>
-              <option value="Consulting">Consulting</option>
-              <option value="Board & Executive">Board & Executive</option>
-              <option value="Personal Visit">Personal Visit</option>
+              <option value="Service & Support">Service & Support</option>
+              <option value="Consultation">Consultation</option>
+              <option value="General Inquiry">General Inquiry</option>
             </select>
           </div>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
-              Visit Notes / Instructions
+              Requirement Notes / Message
             </label>
-            <input
-              type="text"
-              placeholder="e.g. VIP guest, escort required from lobby"
+            <textarea
+              rows={3}
+              placeholder="Enter customer specific requirements or notes..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
@@ -221,16 +188,16 @@ export const PreRegisterModal: React.FC<PreRegisterModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 rounded-md"
+              className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 rounded-md cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-xs transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Schedule Visitor</span>
+              <span>Save Customer</span>
             </button>
           </div>
         </form>

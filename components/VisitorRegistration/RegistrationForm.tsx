@@ -1,40 +1,38 @@
 import React, { useState } from 'react';
 import { 
-  Building2, 
   User, 
   Mail, 
   Phone, 
-  UserCheck,
-  ChevronRight,
-  Briefcase,
-  AlertCircle
+  Briefcase, 
+  MapPin, 
+  FileText, 
+  CheckCircle2, 
+  AlertCircle,
+  Sparkles
 } from 'lucide-react';
-import { Visitor, VisitPurpose } from '../../types';
-import { DEPARTMENTS } from '../../data/departments';
+import { Customer, CustomerPurpose } from '../../types';
 
 interface RegistrationFormProps {
-  onSubmitSuccess: (visitor: Visitor) => void;
+  onSubmitSuccess: (customer: Customer) => void;
 }
 
-const PURPOSES: { value: VisitPurpose; label: string; desc: string }[] = [
-  { value: 'Client Meeting', label: 'Client Meeting', desc: 'Commercial or partner discussion' },
-  { value: 'Interview', label: 'Job Interview', desc: 'Candidate on-site interview' },
-  { value: 'Vendor & Contractor', label: 'Vendor / Contractor', desc: 'Maintenance, delivery, technical services' },
-  { value: 'Consulting', label: 'Consulting & Advisory', desc: 'External advisory session' },
-  { value: 'Board & Executive', label: 'Executive / Board', desc: 'Leadership or investor meeting' },
-  { value: 'Personal Visit', label: 'Personal Visit', desc: 'Visiting staff member' },
+const PURPOSES: { value: CustomerPurpose; label: string; desc: string }[] = [
+  { value: 'Product Inquiry', label: 'Product Inquiry', desc: 'Interested in catalog, pricing, demo' },
+  { value: 'Sales & Purchase', label: 'Sales & Orders', desc: 'Placing order, purchase request' },
+  { value: 'Client Meeting', label: 'Client Meeting', desc: 'Business consultation or partner sync' },
+  { value: 'Service & Support', label: 'Service & Support', desc: 'Technical support, maintenance, query' },
+  { value: 'Consultation', label: 'Consultation', desc: 'Expert advisory, solution discussion' },
+  { value: 'General Inquiry', label: 'General / Other', desc: 'General questions or visiting the office' },
 ];
 
 export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSuccess }) => {
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
-  const [hostName, setHostName] = useState('');
-  const [hostDepartment, setHostDepartment] = useState<string>(DEPARTMENTS[0]);
-  const [purpose, setPurpose] = useState<VisitPurpose>('Client Meeting');
+  const [city, setCity] = useState('');
+  const [purpose, setPurpose] = useState<CustomerPurpose>('Product Inquiry');
   const [notes, setNotes] = useState('');
-  const [ndaAccepted, setNdaAccepted] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -42,23 +40,11 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
     e.preventDefault();
 
     if (!fullName.trim()) {
-      setValidationError('Please enter your full legal or preferred name.');
-      return;
-    }
-    if (!email.trim() || !email.includes('@')) {
-      setValidationError('Please provide a valid corporate or personal email address.');
+      setValidationError('Please enter customer full name.');
       return;
     }
     if (!phone.trim()) {
-      setValidationError('Please provide a contact phone number for security check-in.');
-      return;
-    }
-    if (!hostName.trim()) {
-      setValidationError('Please enter the name of the host or department you are visiting.');
-      return;
-    }
-    if (!ndaAccepted) {
-      setValidationError('You must review and agree to the building safety & confidentiality policy.');
+      setValidationError('Please enter a contact phone number.');
       return;
     }
 
@@ -67,54 +53,47 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
 
     const now = new Date();
     const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const randomBadgeNum = `G-${Math.floor(100 + Math.random() * 900)}`;
-    const randomId = `VIS-${Math.floor(1000 + Math.random() * 9000)}`;
+    const dateFormatted = now.toISOString().slice(0, 10);
+    const registeredAtFormatted = `${dateFormatted} ${timeFormatted}`;
+    const randomId = `CUST-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    const newVisitor: Visitor = {
+    const newCustomer: Customer = {
       id: randomId,
-      badgeNumber: randomBadgeNum,
       fullName: fullName.trim(),
-      email: email.trim().toLowerCase(),
       phone: phone.trim(),
-      company: company.trim() || 'Independent Guest',
-      hostName: hostName.trim(),
-      hostDepartment,
-      hostEmail: `${hostName.trim().toLowerCase().replace(/\s+/g, '.')}@internal.corp`,
+      email: email.trim().toLowerCase() || '',
+      company: company.trim() || 'Individual',
+      city: city.trim() || undefined,
       purpose,
-      location: `Floor & Room for ${hostDepartment}`,
-      expectedDate: now.toISOString().slice(0, 10),
-      expectedTime: timeFormatted,
-      checkInTime: timeFormatted,
-      status: 'checked_in',
-      ndaSigned: true,
       notes: notes.trim() || undefined,
-      registeredAt: now.toISOString().replace('T', ' ').slice(0, 16),
+      registeredAt: registeredAtFormatted,
+      registeredDate: dateFormatted,
     };
 
     setTimeout(() => {
       setIsSubmitting(false);
-      onSubmitSuccess(newVisitor);
-    }, 400);
+      onSubmitSuccess(newCustomer);
+    }, 350);
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-8 sm:py-12 px-4 sm:px-6">
-      {/* Header section with clean visual hierarchy */}
-      <div className="mb-8 text-center sm:text-left">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200/70 mb-3.5">
-          <Building2 className="w-3.5 h-3.5" />
-          <span>Building Access & Security</span>
+    <div className="w-full max-w-2xl mx-auto py-6 sm:py-10 px-4 sm:px-6">
+      {/* Header section */}
+      <div className="mb-6 text-center sm:text-left">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200/80 mb-3">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Customer Information Registration</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-          Welcome! Please Register Your Visit
+          Customer Details Entry
         </h1>
-        <p className="mt-2 text-sm text-slate-600 leading-relaxed max-w-xl">
-          To maintain workplace safety, issue your verified guest pass, and immediately notify your host of your arrival, please provide your visit details below.
+        <p className="mt-1.5 text-sm text-slate-600 leading-relaxed max-w-xl">
+          Please fill in your details below. Our team will record your inquiry and assist you promptly.
         </p>
       </div>
 
-      {/* Main Registration Card */}
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 sm:p-8">
+      {/* Main Form Card */}
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-6 sm:p-8">
         {validationError && (
           <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-sm text-red-800 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
@@ -123,20 +102,20 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
         )}
 
         <form onSubmit={handleSubmit} noValidate className="space-y-6">
-          {/* Section 1: Visitor Information */}
+          {/* Section 1: Customer Contact Details */}
           <div>
             <div className="flex items-center justify-between pb-2 mb-4 border-b border-slate-100">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                1. Your Contact Information
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                1. Customer Contact Details
               </h2>
-              <span className="text-xs text-slate-400">All fields required unless marked</span>
+              <span className="text-xs text-slate-400">* Required</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Full Name */}
               <div className="sm:col-span-2">
                 <label htmlFor="fullName" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Full Name <span className="text-red-500">*</span>
+                  Customer Name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -148,7 +127,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
                     name="name"
                     required
                     autoComplete="name"
-                    placeholder="e.g. Eleanor Vance"
+                    placeholder="e.g. Rajesh Kumar"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
@@ -156,33 +135,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
                 </div>
               </div>
 
-              {/* Work Email */}
-              <div>
-                <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Email Address <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    autoComplete="email"
-                    placeholder="name@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
-                  />
-                </div>
-              </div>
-
-              {/* Phone Number */}
+              {/* Mobile Phone */}
               <div>
                 <label htmlFor="phone" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Mobile Phone <span className="text-red-500">*</span>
+                  Mobile Number <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -194,7 +150,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
                     name="phone"
                     required
                     autoComplete="tel"
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="e.g. 98765 43210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
@@ -202,10 +158,32 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
                 </div>
               </div>
 
-              {/* Company / Organization */}
-              <div className="sm:col-span-2">
+              {/* Email Address */}
+              <div>
+                <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Email Address <span className="text-slate-400 font-normal">(Optional)</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    autoComplete="email"
+                    placeholder="customer@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
+                  />
+                </div>
+              </div>
+
+              {/* Company / Business Name */}
+              <div>
                 <label htmlFor="company" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Company / Organization <span className="text-slate-400 font-normal">(Optional)</span>
+                  Company / Business <span className="text-slate-400 font-normal">(Optional)</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -214,11 +192,31 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
                   <input
                     type="text"
                     id="company"
-                    name="organization"
-                    autoComplete="organization"
-                    placeholder="e.g. Acme Corporation or Independent"
+                    name="company"
+                    placeholder="e.g. Apex Enterprises or Self"
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
+                    className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
+                  />
+                </div>
+              </div>
+
+              {/* City / Location */}
+              <div>
+                <label htmlFor="city" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                  City / Location <span className="text-slate-400 font-normal">(Optional)</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    id="city"
+                    name="city"
+                    placeholder="e.g. Chennai, Bangalore"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
                     className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
                   />
                 </div>
@@ -226,60 +224,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
             </div>
           </div>
 
-          {/* Section 2: Host & Purpose */}
+          {/* Section 2: Purpose / Requirement */}
           <div>
             <div className="flex items-center justify-between pb-2 mb-4 border-b border-slate-100">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                2. Host & Visit Details
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                2. Requirement / Purpose
               </h2>
             </div>
 
             <div className="space-y-4">
-              {/* Host Input & Department */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="hostName" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Host Name or Contact Person <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <UserCheck className="w-4 h-4" />
-                    </div>
-                    <input
-                      type="text"
-                      id="hostName"
-                      required
-                      placeholder="e.g. Sarah Jenkins or Reception Desk"
-                      value={hostName}
-                      onChange={(e) => setHostName(e.target.value)}
-                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="hostDepartment" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Host Department
-                  </label>
-                  <select
-                    id="hostDepartment"
-                    value={hostDepartment}
-                    onChange={(e) => setHostDepartment(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors"
-                  >
-                    {DEPARTMENTS.map((dept) => (
-                      <option key={dept} value={dept}>
-                        {dept}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Purpose of Visit Grid */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Purpose of Visit <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                  Select Inquiry Category
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {PURPOSES.map((item) => {
@@ -289,13 +245,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
                         type="button"
                         key={item.value}
                         onClick={() => setPurpose(item.value)}
-                        className={`p-3 rounded-lg border text-left transition-all ${
+                        className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
                           isSelected
-                            ? 'border-blue-600 bg-blue-50/60 ring-1 ring-blue-600 text-blue-950 shadow-xs'
-                            : 'border-slate-200 bg-white hover:bg-slate-50/80 text-slate-700'
+                            ? 'border-blue-600 bg-blue-50/70 ring-1 ring-blue-600 text-blue-950 shadow-xs'
+                            : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
                         }`}
                       >
-                        <div className="font-medium text-xs sm:text-sm">{item.label}</div>
+                        <div className="font-semibold text-xs sm:text-sm">{item.label}</div>
                         <div className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">{item.desc}</div>
                       </button>
                     );
@@ -303,40 +259,25 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
                 </div>
               </div>
 
-              {/* Notes / Special Requirements */}
+              {/* Requirements / Notes */}
               <div>
                 <label htmlFor="notes" className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Meeting Subject or Notes <span className="text-slate-400 font-normal">(Optional)</span>
+                  Requirement Details / Message <span className="text-slate-400 font-normal">(Optional)</span>
                 </label>
-                <input
-                  type="text"
-                  id="notes"
-                  placeholder="e.g. Q4 Executive Review, Contract Delivery"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: NDA & Safety Compliance */}
-          <div className="pt-2">
-            <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-4">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={ndaAccepted}
-                  onChange={(e) => setNdaAccepted(e.target.checked)}
-                  className="mt-1 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                />
-                <div className="text-xs text-slate-600 leading-normal">
-                  <span className="font-semibold text-slate-900 block mb-0.5">
-                    Building Safety & Confidentiality Agreement
-                  </span>
-                  I confirm that all provided details are accurate. I agree to comply with building emergency guidelines, wear my visitor pass prominently, and adhere to visitor confidentiality standards during my stay.
+                <div className="relative">
+                  <div className="absolute top-3 left-3.5 pointer-events-none text-slate-400">
+                    <FileText className="w-4 h-4" />
+                  </div>
+                  <textarea
+                    id="notes"
+                    rows={3}
+                    placeholder="Enter any specific requirements, product models, or notes..."
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-shadow"
+                  />
                 </div>
-              </label>
+              </div>
             </div>
           </div>
 
@@ -345,22 +286,22 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full py-3.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Processing Check-in...</span>
+                  <span>Saving Details...</span>
                 </>
               ) : (
                 <>
-                  <span>Complete Visit Registration</span>
-                  <ChevronRight className="w-4 h-4" />
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Submit Customer Details</span>
                 </>
               )}
             </button>
             <p className="mt-2 text-center text-xs text-slate-400">
-              Host notification dispatched automatically upon submission.
+              Your details will be recorded securely in our customer management system.
             </p>
           </div>
         </form>

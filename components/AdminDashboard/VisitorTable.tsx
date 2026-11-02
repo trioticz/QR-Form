@@ -52,7 +52,7 @@ export const VisitorTable: React.FC<VisitorTableProps> = ({
     // Date filter
     let matchesDate = true;
     if (dateFilter === 'today') {
-      matchesDate = v.registeredDate === todayStr || (v.registeredAt && v.registeredAt.startsWith(todayStr));
+      matchesDate = v.registeredDate === todayStr || Boolean(v.registeredAt && v.registeredAt.startsWith(todayStr));
     } else if (dateFilter === 'week') {
       if (v.registeredDate) {
         const d = new Date(v.registeredDate);

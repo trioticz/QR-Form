@@ -1,25 +1,30 @@
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { X, Smartphone, Copy, Check } from 'lucide-react';
+import { X, Smartphone, Copy, Check, Globe, Wifi, ExternalLink } from 'lucide-react';
 
 interface MobileQRModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const PRODUCTION_LIVE_URL = 'https://qr-form-pi.vercel.app/';
+const LOCAL_WIFI_IP = '10.14.205.164';
+
 export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<'live' | 'local'>('live');
 
   if (!isOpen) return null;
 
-  // Prefer host IP for cross-device mobile scanning
-  const currentHost = typeof window !== 'undefined' ? window.location.hostname : '10.14.205.164';
-  const port = typeof window !== 'undefined' && window.location.port ? `:${window.location.port}` : ':5175';
-  const isLocalhost = currentHost === 'localhost' || currentHost === '127.0.0.1';
+  // If running in production on Vercel, use window.location.origin
+  const liveUrl = (typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost') && !window.location.origin.includes('127.0.0.1'))
+    ? `${window.location.origin}/`
+    : PRODUCTION_LIVE_URL;
+
+  const currentPort = typeof window !== 'undefined' && window.location.port ? `:${window.location.port}` : ':5175';
+  const localUrl = `http://${LOCAL_WIFI_IP}${currentPort}/`;
   
-  // If user is on localhost on desktop, use the Wi-Fi network IP so mobile phone camera scanning works!
-  const targetHost = isLocalhost ? '10.14.205.164' : currentHost;
-  const qrUrl = `http://${targetHost}${port}/`;
+  const qrUrl = activeTab === 'live' ? liveUrl : localUrl;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(qrUrl);
@@ -43,69 +48,119 @@ export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose })
             </div>
             <div>
               <h3 id="qr-modal-title" className="text-sm font-bold text-white tracking-tight">
-                Mobile Registration
+                Mobile Registration Form
               </h3>
-              <p className="text-[11px] text-slate-400">Scan to fill on your phone</p>
+              <p className="text-[11px] text-slate-400">Scan to fill on your smartphone</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-md transition-colors"
+            className="p-1.5 text-slate-400 hover:text-white rounded-md transition-colors cursor-pointer"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
+        {/* Tab Selection */}
+        <div className="p-3 bg-slate-50 border-b border-slate-200/80">
+          <div className="grid grid-cols-2 gap-1 bg-slate-200/70 p-1 rounded-lg text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setActiveTab('live')}
+              className={`py-1.5 px-2 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                activeTab === 'live'
+                  ? 'bg-white text-blue-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Globe className="w-3.5 h-3.5 text-blue-600" />
+              <span>Live Vercel Link</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('local')}
+              className={`py-1.5 px-2 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                activeTab === 'local'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Wifi className="w-3.5 h-3.5 text-slate-500" />
+              <span>Local Wi-Fi</span>
+            </button>
+          </div>
+        </div>
+
         {/* Content */}
-        <div className="p-6 text-center">
-          <p className="text-xs text-slate-600 mb-5 max-w-xs mx-auto">
-            Scan with your smartphone camera to open the customer registration form directly on your mobile device.
+        <div className="p-5 text-center">
+          <p className="text-xs text-slate-600 mb-4 max-w-xs mx-auto">
+            {activeTab === 'live' ? (
+              <span className="text-emerald-700 font-medium">
+                Live URL • Works on all phones via 4G, 5G, or Wi-Fi.
+              </span>
+            ) : (
+              <span>
+                Local Network • Requires phone on same Wi-Fi.
+              </span>
+            )}
           </p>
 
           {/* QR Code Container */}
-          <div className="inline-block p-4 rounded-xl bg-white border-2 border-slate-200/90 shadow-sm mb-4">
+          <div className="inline-block p-4 rounded-xl bg-white border-2 border-slate-200 shadow-xs mb-3">
             <QRCodeSVG
               value={qrUrl}
-              size={180}
+              size={170}
               level="H"
               includeMargin={false}
             />
           </div>
 
-          <div className="space-y-1 mb-5">
+          <div className="space-y-1 mb-4">
             <div className="text-xs font-semibold text-slate-900">
-              Quick Customer Entry Form
+              Customer Details Form
             </div>
-            <div className="font-mono text-[11px] text-slate-500 break-all px-2">
+            <div className="font-mono text-[11px] text-blue-700 bg-blue-50/70 py-1.5 px-2 rounded border border-blue-100 break-all select-all font-medium">
               {qrUrl}
             </div>
           </div>
 
-          {/* Copy URL button */}
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
-          >
-            {copied ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-emerald-700 font-semibold">Link Copied to Clipboard</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5 text-slate-500" />
-                <span>Copy Form Link</span>
-              </>
-            )}
-          </button>
+          {/* Actions */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="text-emerald-700 font-semibold">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Copy Link</span>
+                </>
+              )}
+            </button>
+
+            <a
+              href={qrUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-1 py-2 px-3 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100/80 border border-blue-200 transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Open</span>
+            </a>
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="bg-slate-50 px-6 py-3 border-t border-slate-100 text-center text-[11px] text-slate-400">
-          Customers can easily fill their details on their phone.
+        <div className="bg-slate-50 px-5 py-2.5 border-t border-slate-100 text-center text-[11px] text-slate-500">
+          Scan with your phone camera to register customer details.
         </div>
       </div>
     </div>

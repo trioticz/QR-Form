@@ -7,7 +7,7 @@ interface MobileQRModalProps {
   onClose: () => void;
 }
 
-const PRODUCTION_LIVE_URL = 'https://qr-form-pi.vercel.app/';
+const PRODUCTION_LIVE_URL = 'https://registration.triopneumax.com/';
 const LOCAL_WIFI_IP = '10.14.205.164';
 
 export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose }) => {

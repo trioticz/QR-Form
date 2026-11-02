@@ -1,19 +1,36 @@
 {
-  "name": "interactive-hero-portfolio",
+  "name": "qr-",
   "version": "1.0.0",
-  "description": "Interactive Portfolio with Scroll-Triggered Parallax Layers, 3D Geometric Mouse Physics, Floating Nav, and Glassmorphism",
   "type": "module",
+  "description": "",
+  "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "start": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview"
   },
-  "devDependencies": {
-    "vite": "^6.0.0"
-  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "three": "^0.170.0"
+    "@tailwindcss/vite": "^4.3.3",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.66.0",
+    "qrcode": "^1.5.4",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tailwind-merge": "^3.7.0"
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "autoprefixer": "^10.6.2",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
   }
 }
-

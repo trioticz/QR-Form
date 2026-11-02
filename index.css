@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  * {
+    border-color: #e2e8f0;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: #1e293b;
+    background-color: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Form user validation feedback only after interaction per modern web best practices */
+  input:user-invalid,
+  select:user-invalid,
+  textarea:user-invalid {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+  }
+
+  input:user-valid:not(:placeholder-shown),
+  select:user-valid,
+  textarea:user-valid:not(:placeholder-shown) {
+    border-color: #10b981;
+  }
+}
+
+/* Print styling for Visitor Badge Pass */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-visitor-badge,
+  #printable-visitor-badge * {
+    visibility: visible;
+  }
+  #printable-visitor-badge {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+}
+
+/* Elegant scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+

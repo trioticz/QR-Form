@@ -1,30 +1,25 @@
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { X, Smartphone, Copy, Check, Globe, Wifi, ExternalLink } from 'lucide-react';
+import { X, Copy, Check, ExternalLink } from 'lucide-react';
 
 interface MobileQRModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const PRODUCTION_LIVE_URL = 'https://registration.triopneumax.com/';
-const LOCAL_WIFI_IP = '10.14.205.164';
-
 export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<'live' | 'local'>('live');
 
   if (!isOpen) return null;
 
-  // If running in production on Vercel, use window.location.origin
-  const liveUrl = (typeof window !== 'undefined' && window.location.origin && !window.location.origin.includes('localhost') && !window.location.origin.includes('127.0.0.1'))
-    ? `${window.location.origin}/`
-    : PRODUCTION_LIVE_URL;
-
-  const currentPort = typeof window !== 'undefined' && window.location.port ? `:${window.location.port}` : ':5175';
-  const localUrl = `http://${LOCAL_WIFI_IP}${currentPort}/`;
-  
-  const qrUrl = activeTab === 'live' ? liveUrl : localUrl;
+  // Use current live origin, or default to live Vercel URL if testing on localhost
+  const qrUrl =
+    typeof window !== 'undefined' &&
+    window.location.origin &&
+    !window.location.origin.includes('localhost') &&
+    !window.location.origin.includes('127.0.0.1')
+      ? `${window.location.origin}/`
+      : 'https://qr-form-pi.vercel.app/';
 
   const handleCopy = () => {
     navigator.clipboard.writeText(qrUrl);
@@ -65,55 +60,17 @@ export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose })
           </button>
         </div>
 
-        {/* Tab Selection */}
-        <div className="p-3 bg-slate-50 border-b border-slate-200/80">
-          <div className="grid grid-cols-2 gap-1 bg-slate-200/70 p-1 rounded-lg text-xs font-semibold">
-            <button
-              type="button"
-              onClick={() => setActiveTab('live')}
-              className={`py-1.5 px-2 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'live'
-                  ? 'bg-white text-blue-700 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Globe className="w-3.5 h-3.5 text-blue-600" />
-              <span>Live Vercel Link</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('local')}
-              className={`py-1.5 px-2 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'local'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Wifi className="w-3.5 h-3.5 text-slate-500" />
-              <span>Local Wi-Fi</span>
-            </button>
-          </div>
-        </div>
-
         {/* Content */}
-        <div className="p-5 text-center">
-          <p className="text-xs text-slate-600 mb-4 max-w-xs mx-auto">
-            {activeTab === 'live' ? (
-              <span className="text-emerald-700 font-medium">
-                Live URL • Works on all phones via 4G, 5G, or Wi-Fi.
-              </span>
-            ) : (
-              <span>
-                Local Network • Requires phone on same Wi-Fi.
-              </span>
-            )}
+        <div className="p-6 text-center">
+          <p className="text-xs text-emerald-700 font-medium mb-4">
+            Works on all mobile phones via 4G, 5G, or Wi-Fi
           </p>
 
           {/* QR Code Container */}
           <div className="inline-block p-4 rounded-xl bg-white border-2 border-slate-200 shadow-xs mb-3">
             <QRCodeSVG
               value={qrUrl}
-              size={170}
+              size={180}
               level="H"
               includeMargin={false}
             />
@@ -121,7 +78,7 @@ export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose })
 
           <div className="space-y-1 mb-4">
             <div className="text-xs font-semibold text-slate-900">
-              Customer Details Form
+              Customer Registration Form
             </div>
             <div className="font-mono text-[11px] text-blue-700 bg-blue-50/70 py-1.5 px-2 rounded border border-blue-100 break-all select-all font-medium">
               {qrUrl}
@@ -162,7 +119,7 @@ export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose })
 
         {/* Footer */}
         <div className="bg-slate-50 px-5 py-2.5 border-t border-slate-100 text-center text-[11px] text-slate-500">
-          Scan with your phone camera to register customer details.
+          Point your phone camera to register customer details instantly.
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { SuccessBadge } from './SuccessBadge';
 import { MobileQRModal } from './MobileQRModal';
 import { Customer } from '../../types';
 import { saveCustomer } from '../../utils/storage';
+import { registerCustomer } from '../../utils/api';
 import { ShieldCheck, HelpCircle, QrCode } from 'lucide-react';
 
 interface VisitorViewProps {
@@ -23,7 +24,8 @@ export const VisitorView: React.FC<VisitorViewProps> = ({
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
 
   const handleRegistrationComplete = (newCustomer: Customer) => {
-    saveCustomer(newCustomer);
+    // Save to Hostinger MySQL Database and localStorage
+    registerCustomer(newCustomer);
     setRegisteredCustomer(newCustomer);
     onVisitorRegistered(newCustomer);
   };

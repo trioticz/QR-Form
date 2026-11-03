@@ -4,6 +4,7 @@ import { AdminDashboard } from './components/AdminDashboard/AdminDashboard';
 import { AdminLoginPage } from './components/AdminDashboard/AdminLoginPage';
 import { Customer } from './types';
 import { getStoredCustomers } from './utils/storage';
+import { fetchCustomers } from './utils/api';
 
 export type AppRoute = 'visitor' | 'admin';
 
@@ -39,9 +40,17 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    // 1. Load instant cached records
     const loaded = getStoredCustomers();
     setVisitors(loaded);
-  }, []);
+
+    // 2. Fetch fresh registrations from Hostinger MySQL database
+    fetchCustomers().then((remote) => {
+      if (remote && remote.length > 0) {
+        setVisitors(remote);
+      }
+    });
+  }, [route]);
 
   const navigateTo = (path: string) => {
     try {

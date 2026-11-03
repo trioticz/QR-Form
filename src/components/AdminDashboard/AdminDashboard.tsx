@@ -7,6 +7,7 @@ import { VisitorDetailModal } from './VisitorDetailModal';
 import { PreRegisterModal } from './PreRegisterModal';
 import { Customer } from '../../types';
 import { saveCustomer, deleteCustomer, clearAllCustomers } from '../../utils/storage';
+import { fetchCustomers, registerCustomer, removeCustomer } from '../../utils/api';
 
 interface AdminDashboardProps {
   visitors: Customer[];
@@ -27,17 +28,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [selectedVisitor, setSelectedVisitor] = useState<Customer | null>(null);
   const [isPreRegisterOpen, setIsPreRegisterOpen] = useState<boolean>(false);
 
-  const handlePreRegisterSave = (newCustomer: Customer) => {
+  const handlePreRegisterSave = async (newCustomer: Customer) => {
     const updated = saveCustomer(newCustomer);
     onVisitorsUpdated(updated);
+    await registerCustomer(newCustomer);
   };
 
-  const handleDeleteCustomer = (id: string) => {
+  const handleDeleteCustomer = async (id: string) => {
     const updated = deleteCustomer(id);
     onVisitorsUpdated(updated);
     if (selectedVisitor && selectedVisitor.id === id) {
       setSelectedVisitor(null);
     }
+    await removeCustomer(id);
   };
 
   const handleClearManifest = () => {
@@ -106,7 +109,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           onRefresh={() => {
-            onVisitorsUpdated([...visitors]);
+            fetchCustomers().then((remote) => {
+              if (remote) onVisitorsUpdated(remote);
+            });
           }}
           onSwitchToKiosk={onSwitchToKiosk}
           onClearManifest={handleClearManifest}

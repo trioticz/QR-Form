@@ -1,4 +1,3 @@
-import type { IncomingMessage, ServerResponse } from 'http';
 import mysql from 'mysql2/promise';
 
 interface CustomerPayload {
@@ -16,7 +15,7 @@ const DB_CONFIG = {
   host: process.env.MYSQL_HOST || process.env.DB_HOST || 'srv2050.hstgr.io',
   port: Number(process.env.MYSQL_PORT || process.env.DB_PORT || 3306),
   user: process.env.MYSQL_USER || process.env.DB_USER || 'u975848500_trioticz',
-  password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || '',
+  password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || 'Trioticz@1234',
   database: process.env.MYSQL_DATABASE || process.env.DB_NAME || 'u975848500_form_register',
   connectTimeout: 8000,
 };
@@ -65,23 +64,38 @@ function setCors(res: any) {
   );
 }
 
+function sendJson(res: any, statusCode: number, data: any) {
+  if (typeof res.status === 'function') {
+    res.status(statusCode).json(data);
+  } else {
+    res.statusCode = statusCode;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(data));
+  }
+}
+
 export default async function handler(req: any, res: any) {
   setCors(res);
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
+    if (typeof res.status === 'function') {
+      res.status(200).end();
+    } else {
+      res.statusCode = 200;
+      res.end();
+    }
     return;
   }
 
   // Check for password
-  const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-  const customPass = (req.headers['x-db-password'] as string) || url.searchParams.get('db_pass') || undefined;
+  const url = new URL(req.url, `http://${req.headers?.host || 'localhost'}`);
+  const customPass = (req.headers?.['x-db-password'] as string) || url.searchParams.get('db_pass') || undefined;
   const activePassword = customPass || DB_CONFIG.password;
 
   if (!activePassword) {
-    res.status(400).json({
+    sendJson(res, 400, {
       success: false,
-      error: 'Database password not configured. Set MYSQL_PASSWORD in Vercel environment variables or pass x-db-password header.',
+      error: 'Database password not configured.',
     });
     return;
   }
@@ -103,7 +117,7 @@ export default async function handler(req: any, res: any) {
         purpose: r.businessType,
       }));
 
-      res.status(200).json({
+      sendJson(res, 200, {
         success: true,
         count: formatted.length,
         data: formatted,
@@ -114,16 +128,26 @@ export default async function handler(req: any, res: any) {
     // POST /api/customers - save customer registration
     if (req.method === 'POST') {
       let body: CustomerPayload = req.body;
+      if (!body && typeof req[Symbol.asyncIterator] === 'function') {
+        try {
+          const buffers = [];
+          for await (const chunk of req) {
+            buffers.push(chunk);
+          }
+          const rawStr = Buffer.concat(buffers).toString('utf-8');
+          if (rawStr) {
+            body = JSON.parse(rawStr);
+          }
+        } catch {}
+      }
       if (typeof body === 'string') {
         try {
           body = JSON.parse(body);
-        } catch {
-          // ignore
-        }
+        } catch {}
       }
 
       if (!body || !body.name || !body.phone) {
-        res.status(400).json({ success: false, error: 'Name and Phone are required.' });
+        sendJson(res, 400, { success: false, error: 'Name and Phone are required.' });
         return;
       }
 
@@ -169,7 +193,7 @@ export default async function handler(req: any, res: any) {
         purpose: body.businessType.trim(),
       };
 
-      res.status(201).json({
+      sendJson(res, 201, {
         success: true,
         message: 'Customer saved to Hostinger MySQL database successfully.',
         customer: savedCustomer,
@@ -181,19 +205,19 @@ export default async function handler(req: any, res: any) {
     if (req.method === 'DELETE') {
       const idToDelete = url.searchParams.get('id') || req.body?.id;
       if (!idToDelete) {
-        res.status(400).json({ success: false, error: 'Customer id is required to delete.' });
+        sendJson(res, 400, { success: false, error: 'Customer id is required to delete.' });
         return;
       }
 
       await db.query('DELETE FROM customers WHERE id = ?', [idToDelete]);
-      res.status(200).json({ success: true, message: `Customer ${idToDelete} deleted successfully.` });
+      sendJson(res, 200, { success: true, message: `Customer ${idToDelete} deleted successfully.` });
       return;
     }
 
-    res.status(405).json({ success: false, error: `Method ${req.method} not allowed.` });
+    sendJson(res, 405, { success: false, error: `Method ${req.method} not allowed.` });
   } catch (error: any) {
     console.error('MySQL Database Error:', error);
-    res.status(500).json({
+    sendJson(res, 500, {
       success: false,
       error: error.message || 'Database error occurred.',
       code: error.code,

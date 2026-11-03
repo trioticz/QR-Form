@@ -24,8 +24,7 @@ $headers = getallheaders();
 $db_pass = getenv('DB_PASSWORD') ?: ($headers['x-db-password'] ?? ($_GET['db_pass'] ?? ''));
 
 if (empty($db_pass)) {
-    // If not supplied dynamically, check if hardcoded or throw
-    $db_pass = ''; // Enter password here if needed
+    $db_pass = 'Trioticz@1234';
 }
 
 try {
@@ -178,3 +177,4 @@ try {
         'error' => 'Database connection or query failed: ' . $e->getMessage()
     ]);
 }
+

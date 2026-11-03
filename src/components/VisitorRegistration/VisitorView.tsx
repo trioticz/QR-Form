@@ -4,12 +4,12 @@ import { SuccessBadge } from './SuccessBadge';
 import { MobileQRModal } from './MobileQRModal';
 import { Customer } from '../../types';
 import { saveCustomer } from '../../utils/storage';
-import { ShieldCheck, HelpCircle, Users, QrCode, Lock } from 'lucide-react';
+import { ShieldCheck, HelpCircle, QrCode } from 'lucide-react';
 
 interface VisitorViewProps {
   onVisitorRegistered: (customer: Customer) => void;
-  onSwitchToAdmin: () => void;
-  totalCustomersCount: number;
+  onSwitchToAdmin?: () => void;
+  totalCustomersCount?: number;
   isAdminAuthenticated?: boolean;
 }
 
@@ -57,7 +57,7 @@ export const VisitorView: React.FC<VisitorViewProps> = ({
             </div>
           </div>
 
-          {/* Right Actions: QR Mobile Scan & Admin Access */}
+          {/* Right Actions: QR Mobile Scan */}
           <div className="flex items-center gap-2.5">
             <button
               type="button"
@@ -67,31 +67,6 @@ export const VisitorView: React.FC<VisitorViewProps> = ({
             >
               <QrCode className="w-3.5 h-3.5" />
               <span>Mobile QR</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={onSwitchToAdmin}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer border ${
-                isAdminAuthenticated
-                  ? 'text-blue-700 bg-blue-50 hover:bg-blue-100 border-blue-200'
-                  : 'text-slate-700 bg-slate-100 hover:bg-slate-200 border-slate-200'
-              }`}
-              title={isAdminAuthenticated ? 'Open Admin Console' : 'Admin Login Required'}
-            >
-              {isAdminAuthenticated ? (
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-              ) : (
-                <Lock className="w-3.5 h-3.5 text-slate-500" />
-              )}
-              <span className="hidden sm:inline">
-                {isAdminAuthenticated ? 'Admin Console' : 'Admin Login'}
-              </span>
-              {totalCustomersCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 text-slate-800 font-mono font-bold">
-                  {totalCustomersCount}
-                </span>
-              )}
             </button>
           </div>
         </div>

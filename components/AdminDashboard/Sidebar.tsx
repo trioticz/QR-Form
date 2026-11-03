@@ -6,7 +6,8 @@ import {
   BarChart3, 
   Settings, 
   Radio,
-  FileSpreadsheet
+  FileSpreadsheet,
+  LogOut
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -15,6 +16,7 @@ interface SidebarProps {
   isOpenMobile: boolean;
   onCloseMobile: () => void;
   checkedInCount?: number;
+  onLogout?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -22,6 +24,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setActiveTab,
   isOpenMobile,
   onCloseMobile,
+  onLogout,
 }) => {
   const navItems = [
     { id: 'dashboard', label: 'Customer Directory', icon: Users },
@@ -133,7 +136,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-        {/* User profile footer */}
+        {/* User profile footer with Logout */}
         <div className="p-3 border-t border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center font-bold text-xs text-white">
@@ -144,6 +147,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="text-[11px] text-slate-400 truncate">Customer Relations</div>
             </div>
           </div>
+
+          {onLogout && (
+            <button
+              type="button"
+              onClick={onLogout}
+              className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded transition-colors cursor-pointer"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </aside>
     </>

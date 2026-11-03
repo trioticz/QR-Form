@@ -12,12 +12,14 @@ interface AdminDashboardProps {
   visitors: Customer[];
   onVisitorsUpdated: (visitors: Customer[]) => void;
   onSwitchToKiosk: () => void;
+  onLogout?: () => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   visitors,
   onVisitorsUpdated,
   onSwitchToKiosk,
+  onLogout,
 }) => {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
@@ -92,6 +94,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         setActiveTab={setActiveTab}
         isOpenMobile={isMobileMenuOpen}
         onCloseMobile={() => setIsMobileMenuOpen(false)}
+        onLogout={onLogout}
       />
 
       {/* Main Content Area */}
@@ -108,6 +111,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           onSwitchToKiosk={onSwitchToKiosk}
           onClearManifest={handleClearManifest}
           totalVisitors={visitors.length}
+          onLogout={onLogout}
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl w-full mx-auto">

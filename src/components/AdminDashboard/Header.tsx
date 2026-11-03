@@ -7,7 +7,8 @@ import {
   Clock, 
   RefreshCw,
   ExternalLink,
-  Trash2
+  Trash2,
+  LogOut
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -20,6 +21,7 @@ interface HeaderProps {
   onSwitchToKiosk: () => void;
   onClearManifest: () => void;
   totalVisitors: number;
+  onLogout?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -32,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSwitchToKiosk,
   onClearManifest,
   totalVisitors,
+  onLogout,
 }) => {
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
@@ -153,6 +156,19 @@ export const Header: React.FC<HeaderProps> = ({
           <ExternalLink className="w-3.5 h-3.5 text-slate-600" />
           <span className="hidden sm:inline">Customer Form</span>
         </button>
+
+        {/* Logout Action Button */}
+        {onLogout && (
+          <button
+            type="button"
+            onClick={onLogout}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200/80 rounded-md transition-colors cursor-pointer"
+            title="Log out of Admin Console"
+          >
+            <LogOut className="w-3.5 h-3.5 text-red-600" />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        )}
       </div>
     </header>
   );

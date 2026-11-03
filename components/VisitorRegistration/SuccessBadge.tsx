@@ -46,12 +46,14 @@ export const SuccessBadge: React.FC<SuccessBadgeProps> = ({ visitor, onReset }) 
         {/* Header */}
         <div className="bg-slate-900 px-6 py-4 flex items-center justify-between text-white border-b border-slate-800">
           <div className="flex items-center space-x-3">
-            <div className="w-7 h-7 rounded bg-blue-600 flex items-center justify-center font-bold text-xs tracking-wider text-white">
-              CD
-            </div>
+            <img 
+              src="/logo.jpg" 
+              alt="She Wins Logo" 
+              className="w-8 h-8 rounded-full object-cover border border-white/20 shrink-0" 
+            />
             <div>
-              <div className="text-xs font-semibold tracking-wider uppercase text-slate-300">
-                Customer Record
+              <div className="text-xs font-semibold tracking-wider uppercase text-slate-200">
+                She Wins Customer Slip
               </div>
               <div className="text-[11px] text-slate-400 font-mono">
                 ID: {visitor.id}

@@ -43,12 +43,14 @@ export const MobileQRModal: React.FC<MobileQRModalProps> = ({ isOpen, onClose })
         {/* Header */}
         <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
-              <Smartphone className="w-4 h-4" />
-            </div>
+            <img 
+              src="/logo.jpg" 
+              alt="She Wins Logo" 
+              className="w-7 h-7 rounded-full object-cover border border-white/20 shrink-0" 
+            />
             <div>
               <h3 id="qr-modal-title" className="text-sm font-bold text-white tracking-tight">
-                Mobile Registration Form
+                She Wins Registration
               </h3>
               <p className="text-[11px] text-slate-400">Scan to fill on your smartphone</p>
             </div>

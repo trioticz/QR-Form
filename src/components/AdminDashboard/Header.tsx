@@ -69,9 +69,10 @@ export const Header: React.FC<HeaderProps> = ({
 
         <div className="hidden sm:block">
           <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <span>CustomerDesk</span>
+            <img src="/logo.jpg" alt="She Wins" className="w-5 h-5 rounded-full object-cover inline-block shrink-0" />
+            <span className="font-semibold text-slate-900">She Wins</span>
             <span>/</span>
-            <span className="text-slate-900 font-semibold">Customer Records Directory</span>
+            <span className="text-slate-600">Customer Records Directory</span>
           </div>
         </div>
       </div>

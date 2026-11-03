@@ -53,14 +53,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Brand header */}
         <div className="h-16 px-6 flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm tracking-wider shadow-sm">
-              CD
-            </div>
+            <img 
+              src="/logo.jpg" 
+              alt="She Wins Logo" 
+              className="w-8 h-8 rounded-full object-cover border border-slate-700 shrink-0" 
+            />
             <div>
               <div className="text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
-                CustomerDesk <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800">Hub</span>
+                She Wins <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-pink-950 text-pink-300 border border-pink-800">Admin</span>
               </div>
-              <div className="text-[11px] text-slate-400">Customer Details Management</div>
+              <div className="text-[11px] text-slate-400">Customer Records Hub</div>
             </div>
           </div>
         </div>

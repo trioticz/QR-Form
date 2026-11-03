@@ -78,12 +78,14 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
         {/* Header */}
         <div className="px-6 pt-6 pb-4 bg-slate-900 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
+            <img 
+              src="/logo.jpg" 
+              alt="She Wins Logo" 
+              className="w-10 h-10 rounded-full object-cover border-2 border-white/20 shadow-sm shrink-0" 
+            />
             <div>
               <h3 id="admin-login-title" className="text-base font-bold text-white tracking-tight">
-                Admin Console Login
+                She Wins Admin Login
               </h3>
               <p className="text-[11px] text-slate-400">Customer Records Management</p>
             </div>
@@ -212,3 +214,4 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
     </div>
   );
 };
+

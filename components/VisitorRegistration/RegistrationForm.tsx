@@ -74,12 +74,25 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmitSucc
 
   return (
     <div className="w-full max-w-lg mx-auto py-6 sm:py-10 px-4 sm:px-6">
-      {/* Title */}
-      <div className="mb-6 text-center sm:text-left">
+      {/* Brand & Title */}
+      <div className="mb-6 flex flex-col items-center sm:items-start text-center sm:text-left">
+        <div className="flex items-center gap-3 mb-3">
+          <img 
+            src="/logo.jpg" 
+            alt="She Wins Logo" 
+            className="w-14 h-14 rounded-full object-cover shadow-sm border-2 border-pink-100 shrink-0" 
+          />
+          <div>
+            <div className="text-lg font-bold text-slate-900 tracking-tight">She Wins</div>
+            <div className="text-[11px] font-semibold text-pink-600 tracking-wider uppercase">
+              Aspire • Empower • Inspire
+            </div>
+          </div>
+        </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
           Customer Registration
         </h1>
-        <p className="mt-1.5 text-sm text-slate-600">
+        <p className="mt-1 text-sm text-slate-600">
           Please fill in the details below.
         </p>
       </div>

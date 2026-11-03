@@ -39,18 +39,20 @@ export const VisitorView: React.FC<VisitorViewProps> = ({
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo & Facility */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm tracking-wider shadow-xs">
-              CD
-            </div>
+            <img 
+              src="/logo.jpg" 
+              alt="She Wins Logo" 
+              className="w-9 h-9 rounded-full object-cover shadow-xs border border-pink-100 shrink-0" 
+            />
             <div>
               <div className="text-sm font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
-                CustomerDesk
-                <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200/60">
-                  Customer Entry
+                She Wins
+                <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-pink-50 text-pink-700 border border-pink-200/70">
+                  Registration
                 </span>
               </div>
               <div className="text-[11px] text-slate-500 hidden sm:block">
-                Client Registration & Inquiry Desk
+                Aspire • Empower • Inspire
               </div>
             </div>
           </div>

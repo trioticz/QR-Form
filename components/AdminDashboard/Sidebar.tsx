@@ -138,6 +138,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
+        {/* Powered by Trioticz in sidebar */}
+        <div className="px-4 py-2 bg-slate-950/50 border-t border-slate-800/80 flex items-center justify-between">
+          <span className="text-[10px] text-slate-500 font-medium">Powered by</span>
+          <img src="/trioticz-logo.png" alt="Trioticz" className="h-4 object-contain opacity-80 hover:opacity-100 transition-opacity" />
+        </div>
+
         {/* User profile footer with Logout */}
         <div className="p-3 border-t border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">

@@ -214,8 +214,17 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="text-center text-xs text-slate-500">
-        She Wins Management System • Protected Administrator Area
+      <div className="text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <span>She Wins Management System • Protected Administrator Area</span>
+        <span className="hidden sm:inline text-slate-700">•</span>
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-slate-400">Powered by</span>
+          <img 
+            src="/trioticz-logo.png" 
+            alt="Trioticz" 
+            className="h-5 w-auto object-contain" 
+          />
+        </div>
       </div>
     </div>
   );

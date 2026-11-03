@@ -82,14 +82,32 @@ export const VisitorView: React.FC<VisitorViewProps> = ({
       </main>
 
       {/* Discreet Footer */}
-      <footer className="border-t border-slate-200/60 bg-white/70 py-4 px-4 sm:px-6 text-xs text-slate-500">
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-          <div className="flex items-center justify-center sm:justify-start gap-1.5 text-slate-500">
+      <footer className="border-t border-slate-200/80 bg-white/80 py-4 px-4 sm:px-6 text-xs text-slate-500">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
+          <div className="flex items-center justify-center md:justify-start gap-1.5 text-slate-500">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>Secure Customer Records • Private & Protected</span>
           </div>
 
-          <div className="flex items-center justify-center sm:justify-start gap-1.5 text-slate-500">
+          {/* Powered by Trioticz */}
+          <div className="flex items-center justify-center gap-2 py-1 md:py-0">
+            <span className="text-[11px] text-slate-400 font-medium">Powered by</span>
+            <a 
+              href="https://trioticz.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center hover:opacity-85 transition-opacity"
+              title="Trioticz - Invent With Us"
+            >
+              <img 
+                src="/trioticz-logo-dark.png" 
+                alt="Trioticz" 
+                className="h-6 w-auto object-contain" 
+              />
+            </a>
+          </div>
+
+          <div className="flex items-center justify-center md:justify-end gap-1.5 text-slate-500">
             <HelpCircle className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span>
               Self-registration on mobile:{' '}
